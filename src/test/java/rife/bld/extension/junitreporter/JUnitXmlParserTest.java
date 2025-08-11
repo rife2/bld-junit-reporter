@@ -19,6 +19,7 @@ package rife.bld.extension.junitreporter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
@@ -40,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
+import static java.io.File.separatorChar;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static rife.bld.extension.junitreporter.JUnitXmlParser.EOL;
@@ -278,7 +280,7 @@ class JUnitXmlParserTest {
 
         @Test
         void extractTestFailuresGroupedWithInvalidXmlPath() {
-            var invalidPath = "nonexistent/path/to/file.xml";
+            var invalidPath = "nonexistent" + separatorChar + "file.xml";
 
             assertThatThrownBy(() -> JUnitXmlParser.extractTestFailuresGrouped(invalidPath))
                     .isInstanceOf(JUnitXmlParserException.class)
@@ -425,6 +427,7 @@ class JUnitXmlParserTest {
         }
 
         @Test
+        @DisabledOnOs(OS.WINDOWS)
         void extractTestFailuresGroupedWithUnreadableFile(@TempDir Path tempDir) throws IOException {
             var tempFile = tempDir.resolve("test.xml");
             Files.createFile(tempFile);
@@ -1072,7 +1075,7 @@ class JUnitXmlParserTest {
         }
 
         @Test
-        @EnabledOnOs({OS.LINUX, OS.MAC})
+        @DisabledOnOs(OS.WINDOWS)
         void validateFileThrowsWhenFileIsNotReadable(@TempDir Path tempDir) throws IOException {
             var tempFile = tempDir.resolve("test.xml");
             Files.createFile(tempFile);

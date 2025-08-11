@@ -178,22 +178,20 @@ class ReportPrinterTests {
     class PrintFailureTests {
         @Test
         void printFailureWithNullFailureIndex() {
-            var failure = new TestFailure("testMethod", "Test Method", "TestClass", "AssertionError",
-                    "Test failed message", "", 0.123);
+            var failure = new TestFailure("testMethod", "Test Method", "TestClass",
+                    "AssertionError", "Test failed message", "", 0.123);
 
             var outContent = new ByteArrayOutputStream();
             System.setOut(new PrintStream(outContent));
 
             ReportPrinter.printFailure(failure, 1, null);
 
-            var expectedOutput = """
-                    Test: testMethod
-                        - Name: Test Method
-                        - Type: AssertionError
-                        - Message:
-                            Test failed message
-                        - Time: 0.123
-                    """;
+            var expectedOutput = String.format("Test: testMethod%n" +
+                    "    - Name: Test Method%n" +
+                    "    - Type: AssertionError%n" +
+                    "    - Message:%n" +
+                    "        Test failed message%n" +
+                    "    - Time: 0.123%n");
 
             assertThat(outContent.toString().trim()).isEqualTo(expectedOutput.trim());
 
@@ -202,22 +200,20 @@ class ReportPrinterTests {
 
         @Test
         void printFailureWithNullIndices() {
-            var failure = new TestFailure("testMethod", "Test Method", "TestClass", "AssertionError",
-                    "Test failed message", "", 0.123);
+            var failure = new TestFailure("testMethod", "Test Method", "TestClass",
+                    "AssertionError", "Test failed message", "", 0.123);
 
             var outContent = new ByteArrayOutputStream();
             System.setOut(new PrintStream(outContent));
 
             ReportPrinter.printFailure(failure, null, null);
 
-            var expectedOutput = """
-                    Test: testMethod
-                        - Name: Test Method
-                        - Type: AssertionError
-                        - Message:
-                            Test failed message
-                        - Time: 0.123
-                    """;
+            var expectedOutput = String.format("Test: testMethod%n" +
+                    "    - Name: Test Method%n" +
+                    "    - Type: AssertionError%n" +
+                    "    - Message:%n" +
+                    "        Test failed message%n" +
+                    "    - Time: 0.123%n");
 
             assertThat(outContent.toString().trim()).isEqualTo(expectedOutput.trim());
 
@@ -226,22 +222,20 @@ class ReportPrinterTests {
 
         @Test
         void printFailureWithValidIndices() {
-            var failure = new TestFailure("testMethod", "Test Method", "TestClass", "AssertionError",
-                    "Test failed message", "", 0.123);
+            var failure = new TestFailure("testMethod", "Test Method", "TestClass",
+                    "AssertionError", "Test failed message", "", 0.123);
 
             var outContent = new ByteArrayOutputStream();
             System.setOut(new PrintStream(outContent));
 
             ReportPrinter.printFailure(failure, 1, 2);
 
-            var expectedOutput = """
-                    [1.2] Test: testMethod
-                        - Name: Test Method
-                        - Type: AssertionError
-                        - Message:
-                            Test failed message
-                        - Time: 0.123
-                    """;
+            var expectedOutput = String.format("[1.2] Test: testMethod%n" +
+                    "    - Name: Test Method%n" +
+                    "    - Type: AssertionError%n" +
+                    "    - Message:%n" +
+                    "        Test failed message%n" +
+                    "    - Time: 0.123%n");
 
             assertThat(outContent.toString().trim()).isEqualTo(expectedOutput.trim());
 
@@ -325,10 +319,10 @@ class ReportPrinterTests {
         @Test
         @SuppressWarnings("ExtractMethodRecommender")
         void printSummaryWithNonEmptyGroupedFailures() {
-            var failure1 = new TestFailure("testMethod1", "Test Method 1", "TestClass1", "AssertionError",
-                    "Message: Test failed 1", "", 0.101);
-            var failure2 = new TestFailure("testMethod2", "", "TestClass1", "AssertionError",
-                    "Message: Test failed 2", "", 0.202);
+            var failure1 = new TestFailure("testMethod1", "Test Method 1", "TestClass1",
+                    "AssertionError", "Message: Test failed 1", "", 0.101);
+            var failure2 = new TestFailure("testMethod2", "", "TestClass1",
+                    "AssertionError", "Message: Test failed 2", "", 0.202);
 
             var failuresForClass1 = new TestClassFailures("TestClass1");
             failuresForClass1.addFailure(failure1);
