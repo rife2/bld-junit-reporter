@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="JUnit Jupiter" tests="3" skipped="0" failures="0" errors="0" time="0.053" hostname="example.com" timestamp="2025-08-09T03:32:08">
+<testcase name="verifyHello()" classname="com.example.ExampleTests" time="0.009">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:com.example.ExampleTests]/[method:verifyHello()]
+display-name: verifyHello()
+]]></system-out>
+</testcase>
+<testcase name="verifyFail(String)[1]" classname="com.example.MoreTests" time="0.004">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:com.example.MoreTests]/[test-template:verifyFail(java.lang.String)]/[test-template-invocation:#1]
+display-name: [1] Hello
+]]></system-out>
+</testcase>
+<testcase name="verifyFail(String)[2]" classname="com.example.MoreTests" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:com.example.MoreTests]/[test-template:verifyFail(java.lang.String)]/[test-template-invocation:#2]
+display-name: [2] World
+]]></system-out>
+</testcase>
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]
+display-name: JUnit Jupiter
+]]></system-out>
+</testsuite>
