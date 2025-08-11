@@ -23,23 +23,16 @@ jobs:
           distribution: "zulu"
           java-version: ${{ matrix.java-version }}
 
-      - name: Download dependencies [examples]
-        working-directory: examples
+      - name: Download dependencies [example]
+        working-directory: example
         run: ./bld download
 
-      - name: Run tests [examples]
-        working-directory: examples
+      - name: Compile and run tests [examples]
+        working-directory: example
         run: ./bld compile test
-
-      - name: Run JUnit Reporter [examples]
-        working-directory: examples
-        run: ./bld junit-reporter
 
       - name: Download dependencies
         run: ./bld download
 
       - name: Run tests
         run: ./bld compile test
-
-      - name: Run JUnit Reporter
-        run: ./bld junit-reporter
