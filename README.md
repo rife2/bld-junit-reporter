@@ -38,7 +38,7 @@ public void test() throws Exception {
 }
 ```
 
-- [View Examples](https://github.com/rife2/bld-junit-reporter/blob/master/examples/src/bld/java/com/example/)
+- [View Example](https://github.com/rife2/bld-junit-reporter/blob/main/example/src/bld/java/com/example/ExampleBuild.java)
 
 Please check the [JUnitReporter documentation](https://rife2.github.io/bld-junit-reporter/rife/bld/extension/JUnitReporterOperation.html#method-summary)
 for all available configuration options.
