@@ -21,7 +21,7 @@ For more information, please refer to the [extensions](https://github.com/rife2/
 To display JUnit failure reports, add the following to your `build` file:
 
 ```java
-@BuildCommand(summary = "Test the project with JUnit and run the reporter")
+@BuildCommand(summary = "Runs the JUnit reporter")
 public void reporter() throws Exception {
     new JUnitReporterOperation()
             .fromProject(this)
@@ -34,12 +34,7 @@ public void test() throws Exception {
     var op = testOperation().fromProject(this);
     // Set the reports directory
     op.testToolOptions().reportsDir(new File("build/test-results/test/"));
-
-    try {
-        op.execute();
-    } catch (ExitStatusException ignore) {
-        // Ignore to allow the reporter to run
-    }
+    op.execute();
 }
 ```
 
@@ -50,10 +45,11 @@ for all available configuration options.
 
 ### Failures Summary
 
-To display a summary of all failures, run the following command:
+To display a summary of all failures after running the tests, run the following:
 
 ```console
-./bld compile test reporter
+./bld compile test
+./bld reporter
 ```
 
 The summary will look something like:

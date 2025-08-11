@@ -28,6 +28,7 @@ jobs:
         run: ./bld download
 
       - name: Compile and run tests [example]
+        continue-on-error: true
         working-directory: example
         run: ./bld compile test
 

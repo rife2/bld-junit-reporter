@@ -30,7 +30,8 @@ public class ExampleBuild extends Project {
         new ExampleBuild().start(args);
     }
 
-    @BuildCommand(summary = "Test the project with JUnit and run the reporter")
+    @BuildCommand(summary = "Runs the JUnit reporter (take option)",
+            description = "Usage: reporter [--i[ndex]=GROUP_INDEX[.FAILURE_INDEX]]")
     public void reporter() throws Exception {
         new JUnitReporterOperation()
                 .fromProject(this)
@@ -43,11 +44,6 @@ public class ExampleBuild extends Project {
         var op = testOperation().fromProject(this);
         // Set the reports directory
         op.testToolOptions().reportsDir(new File("build/test-results/test/"));
-
-        try {
-            op.execute();
-        } catch (ExitStatusException ignore) {
-            // Ignore to allow the reporter to run
-        }
+        op.execute();
     }
 }

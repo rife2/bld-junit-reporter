@@ -1,7 +1,8 @@
-## Compile then test the project with JUnit and run the reporter
+## Compile and test the project, then run the reporter
 
 ```console
-./bld compile test reporter
+./bld compile test
+./bld reporter
 ```
 
 ## Display the first group of test failures
@@ -10,7 +11,7 @@
 ./bld reporter --index=1
 ```
 
-## Display the first failure in the firt group of test failures
+## Display the first failure in the first group of test failures
 
 ```console
 ./bld reporter --i=1.2
