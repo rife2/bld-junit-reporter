@@ -28,6 +28,8 @@ import java.util.Objects;
  * @param failureMessage The failure message.
  * @param stackTrace     The stack trace of the failure.
  * @param time           The execution time of the test case.
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 public record TestFailure(String testName, String displayName, String className, String failureType,
                           String failureMessage, String stackTrace, double time)

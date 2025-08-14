@@ -24,6 +24,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Represents the aggregated test failures for a specific test class.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 @SuppressWarnings("PMD.TestClassWithoutTestCases")
 public final class TestClassFailures {

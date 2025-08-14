@@ -20,6 +20,9 @@ import java.io.Serial;
 
 /**
  * Custom exception for XML parsing errors.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 public class JUnitXmlParserException extends RuntimeException {
     @Serial

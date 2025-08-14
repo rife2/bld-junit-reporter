@@ -20,10 +20,11 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static rife.bld.extension.junitreporter.JUnitXmlParser.EOL;
-
 /**
  * Utility class for printing detailed and structured reports of test failures.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 @SuppressWarnings("PMD.SystemPrintln")
 public final class ReportPrinter {

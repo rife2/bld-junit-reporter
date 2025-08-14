@@ -32,6 +32,9 @@ import java.util.stream.IntStream;
 
 /**
  * Utility class to parse JUnit XML reports.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 public final class JUnitXmlParser {
     public static final String EOL = System.lineSeparator();

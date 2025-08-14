@@ -35,6 +35,9 @@ import static rife.bld.operations.exceptions.ExitStatusException.EXIT_SUCCESS;
 
 /**
  * An operation that parses JUnit XML reports and prints test failure information grouped by test class.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReporterOperation> {
     private static final Pattern ARG_MATCH_PATTERN = Pattern.compile("^--(i|index)=(\\d+(?:\\.\\d+)?)$");
