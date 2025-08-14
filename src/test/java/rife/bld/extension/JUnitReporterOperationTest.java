@@ -20,6 +20,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import rife.bld.BaseProject;
 import rife.bld.extension.junitreporter.JUnitXmlParser;
+import rife.bld.extension.testing.TestLogHandler;
 import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.ByteArrayOutputStream;
@@ -36,6 +37,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.TestClassWithoutTestCases"})
 class JUnitReporterOperationTest {
     @SuppressWarnings("LoggerInitializedWithForeignClass")

@@ -45,6 +45,8 @@ public class JUnitReporterBuild extends Project {
         scope(compile)
                 .include(dependency("com.uwyn.rife2", "bld", version(2, 3, 0)));
         scope(test)
+                .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
+                        version(0, 9, 0, "SNAPSHOT")))
                 .include(dependency("org.junit.jupiter", "junit-jupiter",
                         version(5, 13, 4)))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone",
