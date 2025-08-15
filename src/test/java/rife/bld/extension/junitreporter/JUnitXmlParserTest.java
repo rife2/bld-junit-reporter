@@ -20,7 +20,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -44,7 +43,6 @@ import java.util.Map;
 import static java.io.File.separatorChar;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static rife.bld.extension.junitreporter.JUnitXmlParser.EOL;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class JUnitXmlParserTest {
@@ -829,20 +827,19 @@ class JUnitXmlParserTest {
 
         @Test
         void parseTestCasesWithTestWithDisplayName() throws Exception {
-            var xml = XML_HEADER +
-                    "<testsuite>" +
+            var xml = String.format("%s<testsuite>" +
                     "  <testcase name=\"testMethod\" classname=\"com.example.TestClass\" time=\"0.1\">" +
                     "    <system-out>" +
                     "      <system-out><![CDATA[" +
-                    "          unique-id: [engine:junit-jupiter]" + EOL +
-                    "          display-name: Custom Test Display Name" + EOL +
+                    "          unique-id: [engine:junit-jupiter]%n" +
+                    "          display-name: Custom Test Display Name%n" +
                     "      ]]></system-out>" +
                     "    </system-out>" +
                     "    <failure type=\"AssertionError\" message=\"Test failed\">" +
                     "      Stack trace" +
                     "    </failure>" +
                     "  </testcase>" +
-                    "</testsuite>";
+                    "</testsuite>", XML_HEADER);
             var testCases = parseXml(xml).getElementsByTagName("testcase");
 
             var result = JUnitXmlParser.parseTestCases(testCases);

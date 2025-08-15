@@ -37,7 +37,6 @@ import java.util.stream.IntStream;
  * @since 1.0
  */
 public final class JUnitXmlParser {
-    public static final String EOL = System.lineSeparator();
     public static final String MESSAGE_ATTR = "message";
     public static final String NAME_ATTR = "name";
     public static final String TESTCASE_TAG = "testcase";

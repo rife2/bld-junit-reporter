@@ -30,7 +30,6 @@ import java.util.TreeMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static rife.bld.extension.junitreporter.JUnitXmlParser.EOL;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class ReportPrinterTests {
@@ -106,16 +105,16 @@ class ReportPrinterTests {
 
         @Test
         void indentHandlesSpecialCharacters() {
-            var input = "text with special characters:" + EOL + "\t- newline" + EOL + "\t- tab";
-            var expected = "  text with special characters:" + EOL + "  \t- newline" + EOL + "  \t- tab";
+            var input = String.format("text with special characters:%n\t- newline%n\t- tab");
+            var expected = String.format("  text with special characters:%n  \t- newline%n  \t- tab");
 
             assertThat(ReportPrinter.indent(input, 2)).isEqualTo(expected);
         }
 
         @Test
         void indentMultiLineTextWithNonDefaultSize() {
-            var input = "line1" + EOL + "line2" + EOL + "line3";
-            var expected = "    line1" + EOL + "    line2" + EOL + "    line3";
+            var input = String.format("line1%nline2%nline3");
+            var expected = String.format("    line1%n    line2%n    line3");
 
             assertThat(ReportPrinter.indent(input, 4)).isEqualTo(expected);
         }
@@ -144,8 +143,8 @@ class ReportPrinterTests {
 
         @Test
         void indentWithDefaultSize() {
-            var input = "line1" + EOL + "line2";
-            var expected = "        line1" + EOL + "        line2";
+            var input = String.format("line1%nline2");
+            var expected = String.format("        line1%n        line2");
 
             assertThat(ReportPrinter.indent(input)).isEqualTo(expected);
         }
@@ -191,7 +190,7 @@ class ReportPrinterTests {
                     "    - Type: AssertionError%n" +
                     "    - Message:%n" +
                     "        Test failed message%n" +
-                    "    - Time: 0.123%n");
+                    "    - Time: 0.123s%n");
 
             assertThat(outContent.toString().trim()).isEqualTo(expectedOutput.trim());
 
@@ -213,7 +212,7 @@ class ReportPrinterTests {
                     "    - Type: AssertionError%n" +
                     "    - Message:%n" +
                     "        Test failed message%n" +
-                    "    - Time: 0.123%n");
+                    "    - Time: 0.123s%n");
 
             assertThat(outContent.toString().trim()).isEqualTo(expectedOutput.trim());
 
@@ -235,7 +234,7 @@ class ReportPrinterTests {
                     "    - Type: AssertionError%n" +
                     "    - Message:%n" +
                     "        Test failed message%n" +
-                    "    - Time: 0.123%n");
+                    "    - Time: 0.123s%n");
 
             assertThat(outContent.toString().trim()).isEqualTo(expectedOutput.trim());
 
@@ -276,7 +275,7 @@ class ReportPrinterTests {
                     "TestClass",
                     "AssertionError",
                     "Message: Test failed",
-                    "line1" + EOL + "line2" + EOL + "line3",
+                    String.format("line1%nline2%nline3"),
                     0.123
             );
 
@@ -285,8 +284,10 @@ class ReportPrinterTests {
 
             ReportPrinter.printStackTrace(failure);
 
-            var expectedOutput = "    - Trace:" + EOL + "        line1" + EOL + "        line2" + EOL
-                    + "        line3" + EOL;
+            var expectedOutput = String.format("    - Trace:%n" +
+                    "        line1%n" +
+                    "        line2%n" +
+                    "        line3%n");
             assertThat(outContent.toString()).isEqualTo(expectedOutput);
 
             System.setOut(System.out);

@@ -84,7 +84,7 @@ public final class ReportPrinter {
 
         return text.lines()  // More efficient than split() + stream()
                 .map(line -> indent + line)
-                .collect(Collectors.joining(EOL));
+                .collect(Collectors.joining(System.lineSeparator()));
     }
 
     /**
@@ -137,20 +137,23 @@ public final class ReportPrinter {
      * @param failureIndex The index of the failure within the group, or {@code null} if not applicable
      */
     public static void printFailure(TestFailure failure, Integer groupIndex, Integer failureIndex) {
-        var sb = new StringBuilder(256); // Pre-allocate reasonable size
+        var prefix = (groupIndex != null && failureIndex != null)
+                ? String.format("[%d.%d] ", groupIndex, failureIndex)
+                : "";
 
-        if (groupIndex != null && failureIndex != null) {
-            sb.append('[').append(groupIndex).append('.').append(failureIndex).append("] ");
-        }
+        var output = String.format("%sTest: %s%n" +
+                        "    - Name: %s%n" +
+                        "    - Type: %s%n" +
+                        "    - Message:%n%s%n" +
+                        "    - Time: %ss",
+                prefix,
+                failure.testName(),
+                failure.displayName(),
+                failure.failureType(),
+                indent(failure.failureMessage().trim()),
+                failure.time());
 
-        sb.append("Test: ").append(failure.testName()).append(EOL)
-                .append("    - Name: ").append(failure.displayName()).append(EOL)
-                .append("    - Type: ").append(failure.failureType()).append(EOL)
-                .append("    - Message:").append(EOL)
-                .append(indent(failure.failureMessage().trim())).append(EOL)
-                .append("    - Time: ").append(failure.time());
-
-        System.out.println(sb);
+        System.out.println(output);
     }
 
     /**
@@ -196,11 +199,9 @@ public final class ReportPrinter {
         var separatorLength = Math.max(title.length(), 50);
         var separator = "-".repeat(separatorLength);
 
-        var sb = separator + EOL +
-                title + EOL +
-                separator + EOL + EOL;
+        var header = String.format("%s%n%s%n%s%n%n", separator, title, separator);
 
-        System.out.print(sb);
+        System.out.print(header);
     }
 
     /**
@@ -212,7 +213,7 @@ public final class ReportPrinter {
     public static void printStackTrace(TestFailure failure) {
         var stackTrace = failure.stackTrace();
         if (!stackTrace.isEmpty()) {
-            System.out.println("    - Trace:" + EOL + indent(stackTrace));
+            System.out.printf("    - Trace:%n%s%n", indent(stackTrace));
         }
     }
 
@@ -230,14 +231,11 @@ public final class ReportPrinter {
 
         for (var classFailures : groupedFailures.values()) {
             groupCount++;
-            sb.append('[')
-                    .append(groupCount)
-                    .append("] ")
-                    .append(classFailures.getClassName())
-                    .append(" (").append(classFailures.getTotalFailures())
-                    .append(" failures, ").append(String.format("%.3f", classFailures.getTotalTime()))
-                    .append("s)")
-                    .append(EOL);
+            sb.append(String.format("[%d] %s (%d failures, %.3fs)%n",
+                    groupCount,
+                    classFailures.getClassName(),
+                    classFailures.getTotalFailures(),
+                    classFailures.getTotalTime()));
 
             var failureCount = 0;
             for (var failure : classFailures.getFailures()) {
@@ -249,11 +247,7 @@ public final class ReportPrinter {
                 } else {
                     testName = failure.testName() + " (" + failure.displayName() + ')';
                 }
-                sb.append("  - [")
-                        .append(groupCount).append('.').append(failureCount)
-                        .append("] ")
-                        .append(testName)
-                        .append(EOL);
+                sb.append(String.format("  - [%d.%d] %s%n", groupCount, failureCount, testName));
             }
         }
 
@@ -262,6 +256,6 @@ public final class ReportPrinter {
         var totalFailures = groupedFailures.values().stream()
                 .mapToInt(TestClassFailures::getTotalFailures)
                 .sum();
-        System.out.println(EOL + "Total Failures: " + totalFailures);
+        System.out.printf("%nTotal Failures: %d%n", totalFailures);
     }
 }
