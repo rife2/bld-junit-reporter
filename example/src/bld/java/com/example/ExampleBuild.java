@@ -3,13 +3,13 @@ package com.example;
 import rife.bld.BuildCommand;
 import rife.bld.Project;
 import rife.bld.extension.JUnitReporterOperation;
-import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
 import java.util.List;
 
-import static rife.bld.dependencies.Repository.*;
-import static rife.bld.dependencies.Scope.*;
+import static rife.bld.dependencies.Repository.MAVEN_CENTRAL;
+import static rife.bld.dependencies.Repository.RIFE2_RELEASES;
+import static rife.bld.dependencies.Scope.test;
 
 public class ExampleBuild extends Project {
     public ExampleBuild() {

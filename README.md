@@ -64,8 +64,8 @@ JUnit Failures Summary
   - [1.2] verifyFail(String)[2] ([2] bar)
   - [1.3] verifyHelloFoo()
 [2] com.example.MoreTests (2 failures, 0.001s)
-  - [2.1] verifyFail(String)[3] ([3] foo)
-  - [2.2] verifyFail(String)[4] ([4] bar)
+  - [2.1] verifyMore(String)[3] ([3] qux)
+  - [2.2] verifyMore(String)[4] ([4] quux)
 ```
 
 ### Test Group Failures
@@ -128,4 +128,5 @@ The output will look something like:
                 at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:182)
                 at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:177)
                 at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1145)
+                ...
 ```
