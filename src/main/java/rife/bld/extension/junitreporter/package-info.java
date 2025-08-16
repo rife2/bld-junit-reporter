@@ -17,6 +17,7 @@
 /**
  * Provides classes for parsing and displaying JUnit XML reports.
  *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
 package rife.bld.extension.junitreporter;
