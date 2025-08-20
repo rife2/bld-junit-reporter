@@ -18,9 +18,11 @@ package rife.bld.extension.junitreporter;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -31,6 +33,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import rife.bld.extension.testing.RandomRange;
+import rife.bld.extension.testing.RandomRangeResolver;
+import rife.bld.extension.testing.RandomString;
+import rife.bld.extension.testing.RandomStringResolver;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,7 +50,7 @@ import static java.io.File.separatorChar;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.ExcessiveImports"})
 class JUnitXmlParserTest {
     @Nested
     @DisplayName("Extract Display Name Tests")
@@ -904,15 +910,16 @@ class JUnitXmlParserTest {
 
     @Nested
     @DisplayName("Parse Time Tests")
+    @ExtendWith({RandomStringResolver.class, RandomRangeResolver.class})
     class ParseTimeTests {
-        @ParameterizedTest(name = "{index} ''{0}''")
+        @ParameterizedTest(name = "[{index}] ''{0}''")
         @NullAndEmptySource
         @ValueSource(strings = {" ", "  "})
         void parseTimeWithBlankAndNullValues(String input) {
             assertThat(JUnitXmlParser.parseTime(input)).isEqualTo(0.0);
         }
 
-        @ParameterizedTest(name = "{index} ''{0}''")
+        @ParameterizedTest
         @ValueSource(strings = {"NaN", "Infinity", "-Infinity", "foo"})
         void parseTimeWithInvalidFormats(String input) {
             assertThat(JUnitXmlParser.parseTime(input)).isEqualTo(0.0);
@@ -948,6 +955,20 @@ class JUnitXmlParserTest {
             assertThat(JUnitXmlParser.parseTime(input)).isEqualTo(expected);
         }
 
+        @RepeatedTest(3)
+        @RandomRange
+        void parseTimeWithRandomRange(int input) {
+            assertThat(JUnitXmlParser.parseTime(String.valueOf(input)))
+                    .as("parseTime(%d) should return %d.0", input, input).isEqualTo(input);
+        }
+
+        @RepeatedTest(3)
+        @RandomString
+        void parseTimeWithRandomString(String input) {
+            assertThat(JUnitXmlParser.parseTime(input))
+                    .as("parseTime(%s) should return 0", input).isEqualTo(0.0);
+        }
+
         @ParameterizedTest
         @CsvSource({
                 "0.0, 0.0",
@@ -965,8 +986,6 @@ class JUnitXmlParserTest {
     @Nested
     @DisplayName("Text Content Trimmed Tests")
     class TextContentTrimmedTests {
-
-
         @Test
         void textContentTrimmedWithDeeplyNestedText() throws Exception {
             var xmlContent = """

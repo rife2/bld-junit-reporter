@@ -18,10 +18,16 @@ package rife.bld.extension.junitreporter;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import rife.bld.extension.testing.RandomRange;
+import rife.bld.extension.testing.RandomRangeResolver;
+import rife.bld.extension.testing.RandomString;
+import rife.bld.extension.testing.RandomStringResolver;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -31,6 +37,7 @@ import java.util.TreeMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@ExtendWith({RandomStringResolver.class, RandomRangeResolver.class})
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class ReportPrinterTests {
     @Nested
@@ -127,7 +134,7 @@ class ReportPrinterTests {
             assertThat(ReportPrinter.indent(input, 5)).isEqualTo(expected);
         }
 
-        @ParameterizedTest(name = "{index} ''{0}''")
+        @ParameterizedTest(name = "[{index}] ''{0}''")
         @ValueSource(strings = {" ", "  "})
         void indentWithBlankString(String input) {
             assertThat(ReportPrinter.indent(input)).isEqualTo("        " + input);
@@ -169,6 +176,16 @@ class ReportPrinterTests {
         @NullSource
         void indentWithNullString(String input) {
             assertThat(ReportPrinter.indent(input)).isNull();
+        }
+
+        @RepeatedTest(3)
+        @RandomString
+        @RandomRange
+        void indentWithRandomString(int size, String input) {
+            var indentedInput = " ".repeat(size) + input;
+            assertThat(ReportPrinter.indent(input, size))
+                    .as("indent(%s, %d) should return `%s`", input, size, indentedInput)
+                    .isEqualTo(indentedInput);
         }
     }
 
