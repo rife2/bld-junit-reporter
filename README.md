@@ -89,14 +89,14 @@ The output will look something like:
     - Type: org.opentest4j.AssertionFailedError
     - Message:
         expected: <foo> but was: <Hello World!>
-    - Time: 0.009
+    - Time: 0.009s
 
 [1.2] Test: verifyFail(String)[2]
     - Name: [2] bar
     - Type: org.opentest4j.AssertionFailedError
     - Message:
         expected: <bar> but was: <Hello World!>
-    - Time: 0.001
+    - Time: 0.001s
 ```
 ### Failure Detail
 
@@ -119,7 +119,7 @@ The output will look something like:
     - Type: org.opentest4j.AssertionFailedError
     - Message:
         expected: <bar> but was: <Hello World!>
-    - Time: 0.001
+    - Time: 0.001s
     - Trace:
         org.opentest4j.AssertionFailedError: expected: <bar> but was: <Hello World!>
                 at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
