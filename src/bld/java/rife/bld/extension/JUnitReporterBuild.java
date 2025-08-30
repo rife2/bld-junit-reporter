@@ -33,7 +33,7 @@ public class JUnitReporterBuild extends Project {
     public JUnitReporterBuild() {
         pkg = "rife.bld.extension";
         name = "JUnitReporter";
-        version = version(0, 9, 0);
+        version = version(0, 9, 1);
 
         javaRelease = 17;
 
