@@ -169,6 +169,16 @@ class JUnitReporterOperationTest {
     @DisplayName("From Project Tests")
     class FromProjectTests {
         @Test
+        void argAllIsSetFromProjectArguments() {
+            var mockedProject = mock(BaseProject.class);
+            when(mockedProject.arguments()).thenReturn(new ArrayList<>(List.of("--all")));
+            when(mockedProject.buildDirectory()).thenReturn(new File("build"));
+
+            var operation = new JUnitReporterOperation().fromProject(mockedProject);
+            assertThat(operation).extracting("isPrintAll_").isEqualTo(true);
+        }
+
+        @Test
         void argIndexIsRemovedFromProjectArgumentsAfterUse() {
             var mockedProject = mock(BaseProject.class);
             var arguments = new ArrayList<>(List.of("--index=4"));
@@ -398,6 +408,62 @@ class JUnitReporterOperationTest {
 
                 assertThat(TEST_LOG_HANDLER.getLogMessages()).isEmpty();
             }
+        }
+
+        @Test
+        void executeWithAllArgument() {
+            var mockedProject = mock(BaseProject.class);
+            when(mockedProject.arguments()).thenReturn(new ArrayList<>(List.of("--all")));
+            when(mockedProject.buildDirectory()).thenReturn(new File("src/test/resources"));
+
+            var operation = new JUnitReporterOperation().fromProject(mockedProject);
+
+            var outContent = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(outContent));
+
+            assertThatCode(operation::execute).doesNotThrowAnyException();
+
+            var expectedOutput = String.format(
+                    "--------------------------------------------------%n" +
+                            "[1] com.example.ExampleTests%n" +
+                            "--------------------------------------------------%n%n" +
+                            "[1.1] Test: verifyFail(String)[1]%n" +
+                            "    - Name: [1] foo%n" +
+                            "    - Type: org.opentest4j.AssertionFailedError%n" +
+                            "    - Message:%n" +
+                            "        expected: <foo> but was: <Hello World!>%n" +
+                            "    - Time: 0.009s%n" +
+                            "%n[1.2] Test: verifyFail(String)[2]%n" +
+                            "    - Name: [2] bar%n" +
+                            "    - Type: org.opentest4j.AssertionFailedError%n" +
+                            "    - Message:%n" +
+                            "        expected: <bar> but was: <Hello World!>%n" +
+                            "    - Time: 0.001s%n%n" +
+                            "[1.3] Test: verifyHelloFoo()%n" +
+                            "    - Name: verifyHelloFoo()%n" +
+                            "    - Type: org.opentest4j.AssertionFailedError%n" +
+                            "    - Message:%n" +
+                            "        expected: <Hello Foo!> but was: <Hello World!>%n" +
+                            "    - Time: 0.001s%n%n" +
+                            "--------------------------------------------------%n" +
+                            "[2] com.example.MoreTests%n" +
+                            "--------------------------------------------------%n%n" +
+                            "[2.1] Test: verifyMore(String)[3]%n" +
+                            "    - Name: [3] qux%n" +
+                            "    - Type: org.opentest4j.AssertionFailedError%n" +
+                            "    - Message:%n" +
+                            "        expected: <true> but was: <false>%n" +
+                            "    - Time: 0.001s%n%n" +
+                            "[2.2] Test: verifyMore(String)[4]%n" +
+                            "    - Name: [4] quux%n" +
+                            "    - Type: org.opentest4j.AssertionFailedError%n" +
+                            "    - Message:%n" +
+                            "        expected: <true> but was: <false>%n" +
+                            "    - Time: 0.0s%n%n"
+            );
+            assertThat(outContent.toString()).isEqualTo(expectedOutput);
+
+            System.setOut(System.out);
         }
 
         @Test

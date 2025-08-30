@@ -1,4 +1,4 @@
-## Compile and test the project, then run the reporter
+## Compile and test the project, then display the reporter summary
 
 ```console
 ./bld compile test
@@ -15,4 +15,10 @@
 
 ```console
 ./bld reporter --i=1.2
+```
+
+## Display all failures
+
+```console
+./bld reporter --all
 ```

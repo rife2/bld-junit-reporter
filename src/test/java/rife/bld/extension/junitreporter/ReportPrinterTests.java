@@ -324,7 +324,7 @@ class ReportPrinterTests {
             ReportPrinter.printSummary(groupedFailures);
 
             var expectedOutput = String.format(
-                    "%n--------------------------------------------------%n" +
+                    "--------------------------------------------------%n" +
                             "JUnit Failures Summary%n" +
                             "--------------------------------------------------%n%n" +
                             "%nTotal Failures: 0%n"
@@ -354,7 +354,7 @@ class ReportPrinterTests {
             ReportPrinter.printSummary(groupedFailures);
 
             var expectedOutput = String.format(
-                    "%n--------------------------------------------------%n" +
+                    "--------------------------------------------------%n" +
                             "JUnit Failures Summary%n" +
                             "--------------------------------------------------%n%n" +
                             "[1] TestClass1 (2 failures, 0.303s)%n" +

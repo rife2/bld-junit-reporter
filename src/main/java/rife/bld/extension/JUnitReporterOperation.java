@@ -41,8 +41,10 @@ import static rife.bld.operations.exceptions.ExitStatusException.EXIT_SUCCESS;
  */
 public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReporterOperation> {
     private static final Pattern ARG_MATCH_PATTERN = Pattern.compile("^--(i|index)=(\\d+(?:\\.\\d+)?)$");
+    private static final String ARG_ALL = "--all";
     private static final Logger LOGGER = Logger.getLogger(JUnitReporterOperation.class.getName());
     private String argIndex_;
+    private boolean isPrintAll_;
     private boolean failOnSummary_;
     private BaseProject project_;
     private Path reportFile_;
@@ -64,13 +66,18 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
                 LOGGER.log(Level.SEVERE, "A report file is required to run this operation.");
             }
         } else {
-
             try {
                 var groupedFailures =
                         JUnitXmlParser.extractTestFailuresGrouped(reportFile_.toString());
 
                 if (!groupedFailures.isEmpty()) {
-                    if (argIndex_ != null) {
+                    if (isPrintAll_) {
+                        for (var i = 0; i < groupedFailures.size(); i++) {
+                            ReportPrinter.printDetails(String.valueOf(i + 1), groupedFailures);
+                        }
+                        status = EXIT_SUCCESS;
+                    }
+                    else if (argIndex_ != null) {
                         ReportPrinter.printDetails(argIndex_, groupedFailures);
                         status = EXIT_SUCCESS;
                     } else {
@@ -136,10 +143,15 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
             var args = project.arguments();
             if (!args.isEmpty()) {
                 var arg = args.get(0);
+                if (ARG_ALL.equals(arg)) {
+                    isPrintAll_ = true;
+                    args.remove(0);
+                } else {
                 var matcher = ARG_MATCH_PATTERN.matcher(arg);
                 if (matcher.matches()) {
                     args.remove(0);
                     argIndex_ = matcher.group(2);
+                }
                 }
             }
         }
