@@ -195,7 +195,6 @@ public final class ReportPrinter {
      * @param title the title to print
      */
     public static void printHeader(String title) {
-        System.out.println();
         var separatorLength = Math.max(title.length(), 50);
         var separator = "-".repeat(separatorLength);
 

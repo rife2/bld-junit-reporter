@@ -27,4 +27,4 @@ jobs:
 
       - name: Run reporter
         if: ${{ failure() }}
-        run: ./bld reporter
+        run: ./bld reporter -all

@@ -130,3 +130,56 @@ The output will look something like:
                 at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1145)
                 ...
 ```
+
+### All Failures
+
+To display all failures, use the `--all` option:
+
+```console
+./bld reporter --all
+```
+
+```console
+--------------------------------------------------                                                                                                                                  
+[1] com.example.ExampleTests
+--------------------------------------------------
+
+[1.1] Test: verifyFail(String)[1]
+    - Name: [1] foo
+    - Type: org.opentest4j.AssertionFailedError
+    - Message:
+        expected: <foo> but was: <Hello World!>
+    - Time: 0.008s
+
+[1.2] Test: verifyFail(String)[2]
+    - Name: [2] bar
+    - Type: org.opentest4j.AssertionFailedError
+    - Message:
+        expected: <bar> but was: <Hello World!>
+    - Time: 0.001s
+
+[1.3] Test: verifyHelloFoo()
+    - Name: verifyHelloFoo()
+    - Type: org.opentest4j.AssertionFailedError
+    - Message:
+        expected: <Hello Foo!> but was: <Hello World!>
+    - Time: 0.001s
+
+--------------------------------------------------
+[2] com.example.MoreTests
+--------------------------------------------------
+
+[2.1] Test: verifyMore(String)[3]
+    - Name: [3] qux
+    - Type: org.opentest4j.AssertionFailedError
+    - Message:
+        expected: <true> but was: <false>
+    - Time: 0.0s
+
+[2.2] Test: verifyMore(String)[4]
+    - Name: [4] quux
+    - Type: org.opentest4j.AssertionFailedError
+    - Message:
+        expected: <true> but was: <false>
+    - Time: 0.0s
+```
