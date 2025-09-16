@@ -22,13 +22,13 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import rife.bld.BaseProject;
 import rife.bld.extension.junitreporter.JUnitXmlParser;
+import rife.bld.extension.testing.CaptureOutput;
+import rife.bld.extension.testing.CapturedOutput;
 import rife.bld.extension.testing.LoggingExtension;
 import rife.bld.extension.testing.TestLogHandler;
 import rife.bld.operations.exceptions.ExitStatusException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -301,19 +301,16 @@ class JUnitReporterOperationTest {
         }
 
         @Test
-        void executeLargeReport() {
-            var outContent = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outContent));
-
+        @CaptureOutput
+        void executeLargeReport(CapturedOutput output) {
             var operation = new JUnitReporterOperation()
                     .fromProject(new BaseProject())
                     .failOnSummary(true)
                     .reportFile("src/test/resources/large.xml");
+
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-            assertThat(outContent.toString().trim()).endsWith("Total Failures: 408");
-
-            System.setOut(System.out);
+            assertThat(output.getAll().trim()).endsWith("Total Failures: 408");
         }
 
         @Test
@@ -411,15 +408,13 @@ class JUnitReporterOperationTest {
         }
 
         @Test
-        void executeWithAllArgument() {
+        @CaptureOutput
+        void executeWithAllArgument(CapturedOutput capturedOutput) {
             var mockedProject = mock(BaseProject.class);
             when(mockedProject.arguments()).thenReturn(new ArrayList<>(List.of("--all")));
             when(mockedProject.buildDirectory()).thenReturn(new File("src/test/resources"));
 
             var operation = new JUnitReporterOperation().fromProject(mockedProject);
-
-            var outContent = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outContent));
 
             assertThatCode(operation::execute).doesNotThrowAnyException();
 
@@ -461,9 +456,7 @@ class JUnitReporterOperationTest {
                             "        expected: <true> but was: <false>%n" +
                             "    - Time: 0.0s%n%n"
             );
-            assertThat(outContent.toString()).isEqualTo(expectedOutput);
-
-            System.setOut(System.out);
+            assertThat(capturedOutput).extracting("all").isEqualTo(expectedOutput);
         }
 
         @Test

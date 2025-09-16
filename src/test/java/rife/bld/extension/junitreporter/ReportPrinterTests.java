@@ -24,13 +24,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import rife.bld.extension.testing.RandomRange;
-import rife.bld.extension.testing.RandomRangeResolver;
-import rife.bld.extension.testing.RandomString;
-import rife.bld.extension.testing.RandomStringResolver;
+import rife.bld.extension.testing.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -190,15 +185,14 @@ class ReportPrinterTests {
     }
 
     @Nested
+    @CaptureOutput
     @DisplayName("Print Failure Tests")
     class PrintFailureTests {
         @Test
-        void printFailureWithNullFailureIndex() {
+        void printFailureWithNullFailureIndex(CapturedOutput output) {
             var failure = new TestFailure("testMethod", "Test Method", "TestClass",
                     "AssertionError", "Test failed message", "", 0.123);
 
-            var outContent = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outContent));
 
             ReportPrinter.printFailure(failure, 1, null);
 
@@ -209,18 +203,14 @@ class ReportPrinterTests {
                     "        Test failed message%n" +
                     "    - Time: 0.123s%n");
 
-            assertThat(outContent.toString().trim()).isEqualTo(expectedOutput.trim());
-
-            System.setOut(System.out);
+            assertThat(output).extracting("out").isEqualTo(expectedOutput);
         }
 
         @Test
-        void printFailureWithNullIndices() {
+        void printFailureWithNullIndices(CapturedOutput output) {
             var failure = new TestFailure("testMethod", "Test Method", "TestClass",
                     "AssertionError", "Test failed message", "", 0.123);
 
-            var outContent = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outContent));
 
             ReportPrinter.printFailure(failure, null, null);
 
@@ -231,18 +221,14 @@ class ReportPrinterTests {
                     "        Test failed message%n" +
                     "    - Time: 0.123s%n");
 
-            assertThat(outContent.toString().trim()).isEqualTo(expectedOutput.trim());
-
-            System.setOut(System.out);
+            assertThat(output).extracting("out").isEqualTo(expectedOutput);
         }
 
         @Test
-        void printFailureWithValidIndices() {
+        void printFailureWithValidIndices(CapturedOutput output) {
             var failure = new TestFailure("testMethod", "Test Method", "TestClass",
                     "AssertionError", "Test failed message", "", 0.123);
 
-            var outContent = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outContent));
 
             ReportPrinter.printFailure(failure, 1, 2);
 
@@ -253,17 +239,16 @@ class ReportPrinterTests {
                     "        Test failed message%n" +
                     "    - Time: 0.123s%n");
 
-            assertThat(outContent.toString().trim()).isEqualTo(expectedOutput.trim());
-
-            System.setOut(System.out);
+            assertThat(output).extracting("out").isEqualTo(expectedOutput);
         }
     }
 
     @Nested
+    @CaptureOutput
     @DisplayName("Print Stack Trace Tests")
     class PrintStackTraceTests {
         @Test
-        void doesNotPrintWhenStackTraceEmpty() {
+        void doesNotPrintWhenStackTraceEmpty(CapturedOutput output) {
             var failureWithEmptyStackTrace = new TestFailure(
                     "testMethod",
                     "Test Method",
@@ -274,18 +259,13 @@ class ReportPrinterTests {
                     0.123
             );
 
-            var outContent = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outContent));
-
             ReportPrinter.printStackTrace(failureWithEmptyStackTrace);
 
-            assertThat(outContent.toString()).isEmpty();
-
-            System.setOut(System.out);
+            assertThat(output.getOut()).isEmpty();
         }
 
         @Test
-        void printsStackTraceWithIndentation() {
+        void printsStackTraceWithIndentation(CapturedOutput output) {
             var failure = new TestFailure(
                     "testMethod",
                     "Test Method",
@@ -296,30 +276,23 @@ class ReportPrinterTests {
                     0.123
             );
 
-            var outContent = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outContent));
-
             ReportPrinter.printStackTrace(failure);
 
             var expectedOutput = String.format("    - Trace:%n" +
                     "        line1%n" +
                     "        line2%n" +
                     "        line3%n");
-            assertThat(outContent.toString()).isEqualTo(expectedOutput);
-
-            System.setOut(System.out);
+            assertThat(output).extracting("out").isEqualTo(expectedOutput);
         }
     }
 
     @Nested
+    @CaptureOutput
     @DisplayName("Print Summary Tests")
     class PrintSummaryTests {
         @Test
-        void printSummaryWithEmptyGroupedFailures() {
+        void printSummaryWithEmptyGroupedFailures(CapturedOutput output) {
             var groupedFailures = Map.<String, TestClassFailures>of();
-
-            var outContent = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outContent));
 
             ReportPrinter.printSummary(groupedFailures);
 
@@ -329,14 +302,12 @@ class ReportPrinterTests {
                             "--------------------------------------------------%n%n" +
                             "%nTotal Failures: 0%n"
             );
-            assertThat(outContent.toString()).isEqualTo(expectedOutput);
-
-            System.setOut(System.out);
+            assertThat(output).extracting("out").isEqualTo(expectedOutput);
         }
 
         @Test
         @SuppressWarnings("ExtractMethodRecommender")
-        void printSummaryWithNonEmptyGroupedFailures() {
+        void printSummaryWithNonEmptyGroupedFailures(CapturedOutput output) {
             var failure1 = new TestFailure("testMethod1", "Test Method 1", "TestClass1",
                     "AssertionError", "Message: Test failed 1", "", 0.101);
             var failure2 = new TestFailure("testMethod2", "", "TestClass1",
@@ -347,9 +318,6 @@ class ReportPrinterTests {
             failuresForClass1.addFailure(failure2);
 
             var groupedFailures = Map.of("TestClass1", failuresForClass1);
-
-            var outContent = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outContent));
 
             ReportPrinter.printSummary(groupedFailures);
 
@@ -362,9 +330,7 @@ class ReportPrinterTests {
                             "  - [1.2] testMethod2%n" +
                             "%nTotal Failures: 2%n"
             );
-            assertThat(outContent.toString()).isEqualTo(expectedOutput);
-
-            System.setOut(System.out);
+            assertThat(output).extracting("out").isEqualTo(expectedOutput);
         }
     }
 }

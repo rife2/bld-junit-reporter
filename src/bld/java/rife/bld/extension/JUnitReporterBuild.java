@@ -33,7 +33,7 @@ public class JUnitReporterBuild extends Project {
     public JUnitReporterBuild() {
         pkg = "rife.bld.extension";
         name = "JUnitReporter";
-        version = version(0, 9, 1);
+        version = version(0, 9, 2, "SNAPSHOT");
 
         javaRelease = 17;
 
@@ -46,7 +46,7 @@ public class JUnitReporterBuild extends Project {
                 .include(dependency("com.uwyn.rife2", "bld", version(2, 3, 0)));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
-                        version(0, 9, 0, "SNAPSHOT")))
+                        version(0, 9, 3, "SNAPSHOT")))
                 .include(dependency("org.junit.jupiter", "junit-jupiter",
                         version(5, 13, 4)))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone",
