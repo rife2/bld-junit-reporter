@@ -184,7 +184,8 @@ public final class ReportPrinter {
 
         var failureCount = 1;
         for (var failure : failures.getFailures()) {
-            printFailure(failure, groupIndexOffset, failureCount++);
+            printFailure(failure, groupIndexOffset, failureCount);
+            failureCount++;
             System.out.println();
         }
     }

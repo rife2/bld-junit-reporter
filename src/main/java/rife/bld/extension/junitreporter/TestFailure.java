@@ -31,6 +31,7 @@ import java.util.Objects;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
+@SuppressWarnings({"PMD.OverrideBothEqualsAndHashCodeOnComparable", "PMD.DanglingJavadoc"})
 public record TestFailure(String testName, String displayName, String className, String failureType,
                           String failureMessage, String stackTrace, double time)
         implements Comparable<TestFailure> {
