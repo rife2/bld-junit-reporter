@@ -15,8 +15,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
 
       - name: Download dependencies
         run: ./bld download
@@ -27,4 +27,4 @@ jobs:
 
       - name: Run reporter
         if: ${{ failure() }}
-        run: ./bld reporter -all
+        run: ./bld reporter --all

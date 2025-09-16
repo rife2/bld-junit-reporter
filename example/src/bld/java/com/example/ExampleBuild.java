@@ -31,7 +31,7 @@ public class ExampleBuild extends Project {
     }
 
     @BuildCommand(summary = "Runs the JUnit reporter (take option)",
-            description = "Usage: reporter [--i[ndex]=GROUP_INDEX[.FAILURE_INDEX]]")
+            description = "Usage: reporter [--all | --i[ndex]=GROUP_INDEX[.FAILURE_INDEX]]")
     public void reporter() throws Exception {
         new JUnitReporterOperation()
                 .fromProject(this)
