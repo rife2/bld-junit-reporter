@@ -28,9 +28,20 @@ jobs:
         run: ./bld download
 
       - name: Compile and run tests [example]
+        id: tests
         continue-on-error: true
         working-directory: example
         run: ./bld compile test
+
+      - name: Run reporter [example]
+        id: reporter
+        continue-on-error: true
+        working-directory: example
+        run: ./bld reporter --all
+
+      - name: Verify reporter failure [example]
+        if: ${{ steps.reporter.outcome != 'failure' }}
+        run: echo "The reporter step should have failed" && exit 1
 
       - name: Download dependencies
         run: ./bld download
