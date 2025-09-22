@@ -36,6 +36,19 @@ import static rife.bld.operations.exceptions.ExitStatusException.EXIT_SUCCESS;
 /**
  * An operation that parses JUnit XML reports and prints test failure information grouped by test class.
  *
+ * <h4>Usage:</h4>
+ *
+ * <blockquote><pre>
+ * &#64;BuildCommand(summary = "Runs the JUnit reporter")
+ * public void reporter() throws Exception {
+ *     new JUnitReporterOperation()
+ *             .fromProject(this)
+ *             .failOnSummary(true)
+ *             .reportFile("build/test-results/test/TEST-junit-jupiter.xml")
+ *             .execute();
+ * }
+ * </pre></blockquote>
+ *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
