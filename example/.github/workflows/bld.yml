@@ -22,7 +22,6 @@ jobs:
         run: ./bld download
 
       - name: Run tests
-        continue-on-error: true
         run: ./bld compile test
 
       - name: Run reporter

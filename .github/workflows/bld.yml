@@ -29,13 +29,11 @@ jobs:
 
       - name: Compile and run tests [example]
         id: tests
-        continue-on-error: true
         working-directory: example
         run: ./bld compile test
 
       - name: Run reporter [example]
         id: reporter
-        continue-on-error: true
         working-directory: example
         run: ./bld reporter --all
 
