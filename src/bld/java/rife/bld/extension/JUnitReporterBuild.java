@@ -33,6 +33,7 @@ public class JUnitReporterBuild extends Project {
     public JUnitReporterBuild() {
         pkg = "rife.bld.extension";
         name = "JUnitReporter";
+        archiveBaseName = "bld-junit-reporter";
         version = version(0, 9, 2, "SNAPSHOT");
 
         javaRelease = 17;
@@ -67,9 +68,9 @@ public class JUnitReporterBuild extends Project {
                 .repository(repository("github"))
                 .info()
                 .groupId("com.uwyn.rife2")
-                .artifactId("bld-junit-reporter")
+                .artifactId(archiveBaseName)
                 .description("JUnit Reporter Extension for bld")
-                .url("https://github.com/rife2/bld-junit-reporter")
+                .url("https://github.com/rife2/" + archiveBaseName)
                 .developer(new PublishDeveloper()
                         .id("ethauvin")
                         .name("Erik C. Thauvin")
@@ -81,9 +82,9 @@ public class JUnitReporterBuild extends Project {
                         .url("https://www.apache.org/licenses/LICENSE-2.0.txt")
                 )
                 .scm(new PublishScm()
-                        .connection("scm:git:https://github.com/rife2/bld-junit-reporter.git")
-                        .developerConnection("scm:git:git@github.com:rife2/bld-junit-reporter.git")
-                        .url("https://github.com/rife2/bld-junit-reporter")
+                        .connection("scm:git:https://github.com/rife2/" + archiveBaseName + ".git")
+                        .developerConnection("scm:git:git@github.com:rife2/" + archiveBaseName + ".git")
+                        .url("https://github.com/rife2/" + archiveBaseName)
                 )
                 .signKey(property("sign.key"))
                 .signPassphrase(property("sign.passphrase"));
