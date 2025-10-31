@@ -22,3 +22,8 @@
 ```console
 ./bld reporter --all
 ```
+
+## Explore
+
+- [View Build File](https://github.com/rife2/bld-junit-reporter/blob/main/example/src/bld/java/com/example/ExampleBuild.java)
+- [View Wrapper Properties](https://github.com/rife2/bld-junit-reporter/blob/main/example/lib/bld/bld-wrapper.properties)
