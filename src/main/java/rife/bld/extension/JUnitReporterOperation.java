@@ -68,6 +68,7 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
      * @throws ExitStatusException if the operation fails
      */
     @Override
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     public void execute() throws ExitStatusException {
         var status = EXIT_FAILURE;
         if (project_ == null) {

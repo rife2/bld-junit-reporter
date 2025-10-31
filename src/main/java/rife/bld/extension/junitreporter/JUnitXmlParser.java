@@ -54,7 +54,7 @@ public final class JUnitXmlParser {
         // Prevent instantiation
     }
 
-    @SuppressWarnings("HttpUrlsUsage")
+    @SuppressWarnings({"HttpUrlsUsage", "PMD.AvoidCatchingGenericException"})
     private static DocumentBuilderFactory createFactory() {
         var factory = DocumentBuilderFactory.newInstance();
         factory.setValidating(false);
@@ -123,6 +123,7 @@ public final class JUnitXmlParser {
      * @return Map of class names to {@link TestClassFailures TestClassFailures} objects containing grouped failures
      * @throws JUnitXmlParserException if parsing fails or the file doesn't exist
      */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     public static Map<String, TestClassFailures> extractTestFailuresGrouped(String xmlFilePath) {
         Objects.requireNonNull(xmlFilePath, "XML file path cannot be null");
 
