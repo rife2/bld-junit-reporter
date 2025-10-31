@@ -32,7 +32,7 @@ import static rife.bld.operations.JavadocOptions.DocLinkOption.NO_MISSING;
 public class JUnitReporterBuild extends Project {
     public JUnitReporterBuild() {
         pkg = "rife.bld.extension";
-        name = "JUnitReporter";
+        name = "JUnit Reporter";
         archiveBaseName = "bld-junit-reporter";
         version = version(0, 9, 2, "SNAPSHOT");
 
