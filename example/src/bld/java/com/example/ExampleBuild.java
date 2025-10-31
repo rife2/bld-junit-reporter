@@ -22,8 +22,8 @@ public class ExampleBuild extends Project {
 
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
         scope(test)
-                .include(dependency("org.junit.jupiter", "junit-jupiter", version(6, 0, 0)))
-                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(6, 0, 0)));
+                .include(dependency("org.junit.jupiter", "junit-jupiter", version(6, 0, 1)))
+                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(6, 0, 1)));
     }
 
     public static void main(String[] args) {
