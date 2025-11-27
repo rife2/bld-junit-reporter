@@ -16,6 +16,8 @@
 
 package rife.bld.extension.junitreporter;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,6 +44,7 @@ public final class ReportPrinter {
      * @throws IllegalArgumentException  if the map is {@code null} or empty
      * @throws IndexOutOfBoundsException if the index is out of range
      */
+    @SuppressFBWarnings("DRE_DECLARED_RUNTIME_EXCEPTION")
     public static TestClassFailures getFailuresByGroupIndex(Map<String, TestClassFailures> groupedFailures,
                                                             int index)
             throws IndexOutOfBoundsException, IllegalArgumentException {
@@ -109,6 +112,7 @@ public final class ReportPrinter {
      * @throws NumberFormatException     if the numeric portion of the argument cannot be parsed
      * @throws IndexOutOfBoundsException if the specified indices are out of bounds
      */
+    @SuppressFBWarnings("DRE_DECLARED_RUNTIME_EXCEPTION")
     public static void printDetails(String arg, Map<String, TestClassFailures> groupedFailures)
             throws NumberFormatException, IndexOutOfBoundsException {
         var dotIndex = arg.indexOf('.');

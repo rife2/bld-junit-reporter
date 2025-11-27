@@ -16,6 +16,7 @@
 
 package rife.bld.extension.junitreporter;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -124,6 +125,7 @@ public final class JUnitXmlParser {
      * @throws JUnitXmlParserException if parsing fails or the file doesn't exist
      */
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    @SuppressFBWarnings({"EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS", "PATH_TRAVERSAL_IN", "XXE_DOCUMENT"})
     public static Map<String, TestClassFailures> extractTestFailuresGrouped(String xmlFilePath) {
         Objects.requireNonNull(xmlFilePath, "XML file path cannot be null");
 

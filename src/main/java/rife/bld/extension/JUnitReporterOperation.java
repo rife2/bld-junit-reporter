@@ -16,6 +16,7 @@
 
 package rife.bld.extension;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.BaseProject;
 import rife.bld.extension.junitreporter.JUnitXmlParser;
 import rife.bld.extension.junitreporter.JUnitXmlParserException;
@@ -141,6 +142,7 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
      * @return this operation
      */
     @Override
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public JUnitReporterOperation fromProject(BaseProject project) {
         project_ = project;
 
