@@ -129,7 +129,7 @@ class ReportPrinterTests {
             assertThat(ReportPrinter.indent(input, 5)).isEqualTo(expected);
         }
 
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @ValueSource(strings = {" ", "  "})
         void indentWithBlankString(String input) {
             assertThat(ReportPrinter.indent(input)).isEqualTo("        " + input);

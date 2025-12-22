@@ -912,7 +912,7 @@ class JUnitXmlParserTest {
     @DisplayName("Parse Time Tests")
     @ExtendWith({RandomStringResolver.class, RandomRangeResolver.class})
     class ParseTimeTests {
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "  "})
         void parseTimeWithBlankAndNullValues(String input) {
