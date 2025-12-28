@@ -40,7 +40,7 @@ public class JUnitReporterBuild extends Project {
         downloadSources = true;
         autoDownloadPurge = true;
 
-        repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_RELEASES, RIFE2_SNAPSHOTS);
+        repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_SNAPSHOTS, RIFE2_RELEASES);
 
         var junit = version(6, 0, 1);
         scope(compile)
@@ -56,7 +56,7 @@ public class JUnitReporterBuild extends Project {
                 .include(dependency("org.assertj", "assertj-core",
                         version(3, 27, 6)))
                 .include(dependency("org.mockito", "mockito-core",
-                        version(5, 20, 0)));
+                        version(5, 21, 0)));
         javadocOperation()
                 .javadocOptions()
                 .author()
