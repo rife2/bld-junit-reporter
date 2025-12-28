@@ -38,6 +38,12 @@ public void test() throws Exception {
 }
 ```
 
+You could also specify the reports directory using:
+
+```console
+./bld test --reports-dir=build/test-results/test/
+```
+
 - [View Example](https://github.com/rife2/bld-junit-reporter/blob/main/example/src/bld/java/com/example/ExampleBuild.java)
 
 Please check the [JUnitReporter documentation](https://rife2.github.io/bld-junit-reporter/rife/bld/extension/JUnitReporterOperation.html#method-summary)
