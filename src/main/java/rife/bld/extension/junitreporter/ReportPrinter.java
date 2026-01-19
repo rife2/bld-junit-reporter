@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("PMD.SystemPrintln")
 public final class ReportPrinter {
+
     private ReportPrinter() {
         // Prevent instantiation
     }

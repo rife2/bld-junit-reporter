@@ -52,9 +52,11 @@ import static org.mockito.ArgumentMatchers.any;
 
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.ExcessiveImports"})
 class JUnitXmlParserTest {
+
     @Nested
     @DisplayName("Extract Display Name Tests")
     class ExtractDisplayNameTests {
+
         @Test
         void extractDisplayNameWithMultipleSystemOutElements() throws Exception {
             var xmlContent = """
@@ -112,6 +114,7 @@ class JUnitXmlParserTest {
     @Nested
     @DisplayName("Extract Test Failures Grouped Tests")
     class ExtractTestFailuresGroupedTests {
+
         @Test
         void extractTestFailuresGroupedWithBlankAttributes(@TempDir Path tempDir) throws IOException {
             var xmlContent = """
@@ -490,6 +493,7 @@ class JUnitXmlParserTest {
     @Nested
     @DisplayName("Parse Test Cases Tests")
     class ParseTestCasesTests {
+
         private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
         @Test
@@ -912,6 +916,7 @@ class JUnitXmlParserTest {
     @DisplayName("Parse Time Tests")
     @ExtendWith({RandomStringResolver.class, RandomRangeResolver.class})
     class ParseTimeTests {
+
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "  "})
@@ -986,6 +991,7 @@ class JUnitXmlParserTest {
     @Nested
     @DisplayName("Text Content Trimmed Tests")
     class TextContentTrimmedTests {
+
         @Test
         void textContentTrimmedWithDeeplyNestedText() throws Exception {
             var xmlContent = """
@@ -1051,6 +1057,7 @@ class JUnitXmlParserTest {
     @Nested
     @DisplayName("Validate File Test")
     class ValidateFileTest {
+
         @Test
         void validateFilePassesWhenFileIsValid(@TempDir Path tempDir) throws IOException {
             var tempFile = tempDir.resolve("valid-file.xml");

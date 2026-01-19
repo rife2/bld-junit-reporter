@@ -25,6 +25,7 @@ import java.io.Serial;
  * @since 1.0
  */
 public class JUnitXmlParserException extends RuntimeException {
+
     @Serial
     private static final long serialVersionUID = 1L;
 

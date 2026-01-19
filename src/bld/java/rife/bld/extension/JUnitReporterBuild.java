@@ -29,6 +29,7 @@ import static rife.bld.dependencies.Scope.*;
 import static rife.bld.operations.JavadocOptions.DocLinkOption.NO_MISSING;
 
 public class JUnitReporterBuild extends Project {
+
     public JUnitReporterBuild() {
         pkg = "rife.bld.extension";
         name = "JUnit Reporter";

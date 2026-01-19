@@ -44,6 +44,7 @@ import static org.mockito.Mockito.when;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.TestClassWithoutTestCases"})
 class JUnitReporterOperationTest {
+
     @SuppressWarnings("LoggerInitializedWithForeignClass")
     private static final Logger LOGGER = Logger.getLogger(JUnitReporterOperation.class.getName());
     private static final TestLogHandler TEST_LOG_HANDLER = new TestLogHandler();
@@ -71,6 +72,7 @@ class JUnitReporterOperationTest {
     @Nested
     @DisplayName("Argument Parsing Tests")
     class ArgumentParsingTests {
+
         @Test
         void argIndexWithInvalidFormat() {
             var mockedProject = mock(BaseProject.class);
@@ -110,6 +112,7 @@ class JUnitReporterOperationTest {
     @Nested
     @DisplayName("Error Handling Tests")
     class ErrorHandlingTests {
+
         @Test
         void executeWithNonExistentReportFileLogging() {
             var mockedProject = mock(BaseProject.class);
@@ -140,6 +143,7 @@ class JUnitReporterOperationTest {
     @Nested
     @DisplayName("Fail On Summary Tests")
     class FailOnSummaryTests {
+
         @Test
         void failOnSummaryIsFalse() {
             var operation = new JUnitReporterOperation().failOnSummary(false);
@@ -168,6 +172,7 @@ class JUnitReporterOperationTest {
     @Nested
     @DisplayName("From Project Tests")
     class FromProjectTests {
+
         @Test
         void argAllIsSetFromProjectArguments() {
             var mockedProject = mock(BaseProject.class);
@@ -225,6 +230,7 @@ class JUnitReporterOperationTest {
     @Nested
     @DisplayName("Logging Level Tests")
     class LoggingLevelTests {
+
         @Test
         void executeWithLoggingDisabled() {
             // Disable SEVERE logging to test the logging condition branches
@@ -265,6 +271,7 @@ class JUnitReporterOperationTest {
     @Nested
     @DisplayName("Project Configuration Edge Cases")
     class ProjectConfigurationTests {
+
         @Test
         void fromProjectWithEmptyArguments() {
             var mockedProject = mock(BaseProject.class);
@@ -295,6 +302,7 @@ class JUnitReporterOperationTest {
     @Nested
     @DisplayName("Execute Tests")
     class executeTests {
+
         @Test
         void executeConstructProcessCommandListMustBeEmpty() {
             assertThat(new JUnitReporterOperation().executeConstructProcessCommandList()).isEqualTo(List.of());
@@ -673,6 +681,7 @@ class JUnitReporterOperationTest {
     @Nested
     @DisplayName("Report File Tests")
     class reportFileTests {
+
         @Test
         void reportFileAsFile() {
             var reportFile = new File("mocked.xml");

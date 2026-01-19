@@ -54,6 +54,7 @@ import static rife.bld.operations.exceptions.ExitStatusException.EXIT_SUCCESS;
  * @since 1.0
  */
 public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReporterOperation> {
+
     private static final String ARG_ALL = "--all";
     private static final Pattern ARG_MATCH_PATTERN = Pattern.compile("^--(i|index)=(\\d+(?:\\.\\d+)?)$");
     private static final Logger LOGGER = Logger.getLogger(JUnitReporterOperation.class.getName());

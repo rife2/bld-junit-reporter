@@ -26,9 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class TestFailureTest {
+
     @Nested
     @DisplayName("Compare Tests")
     class CompareTests {
+
         @Test
         void compareToDifferentClassDifferentTestName() {
             var failure1 = new TestFailure(
@@ -96,6 +98,7 @@ class TestFailureTest {
     @Nested
     @DisplayName("Constructor Tests")
     class ConstructorTests {
+
         @Test
         void constructorWithEmptyStackTrace() {
             assertThatCode(() -> new TestFailure("test1", "Test 1", "ClassA",

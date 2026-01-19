@@ -17,7 +17,6 @@
 /**
  * Provides a <a href="https://rife2.com/">bld</a> extension to display various JUnit failure reports.
  *
- *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */

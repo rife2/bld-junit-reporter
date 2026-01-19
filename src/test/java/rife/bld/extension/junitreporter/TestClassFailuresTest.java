@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class TestClassFailuresTest {
+
     @Test
     void checkFailuresAreSorted() {
         var testClassFailures = new TestClassFailures("TestClass");
@@ -65,6 +66,7 @@ class TestClassFailuresTest {
     @Nested
     @DisplayName("Add Failure Tests")
     class addFailureTests {
+
         @Test
         void addMultipleFailures() {
             var testClassFailures = new TestClassFailures("TestClass");
@@ -121,6 +123,7 @@ class TestClassFailuresTest {
     @Nested
     @DisplayName("Equals Method Tests")
     class equalsMethodTest {
+
         @Test
         void equalsDifferentInstances() {
             var instance1 = new TestClassFailures("TestClass1");
@@ -185,6 +188,7 @@ class TestClassFailuresTest {
     @Nested
     @DisplayName("HashCode Method Tests")
     class hashCodeTest {
+
         @Test
         void hashCodeDifferentForDifferentInstances() {
             var instance1 = new TestClassFailures("TestClass1");
@@ -205,6 +209,7 @@ class TestClassFailuresTest {
     @Nested
     @DisplayName("Sort Failures Method Tests")
     class sortFailuresTests {
+
         @Test
         void sortFailuresWithAlreadySortedList() {
             var testClassFailures = new TestClassFailures("TestClass");
@@ -267,6 +272,7 @@ class TestClassFailuresTest {
     @Nested
     @DisplayName("ToString Method Tests")
     class toStringMethodTests {
+
         @Test
         void validateToStringForEmptyFailures() {
             var testClassFailures = new TestClassFailures("TestClass");

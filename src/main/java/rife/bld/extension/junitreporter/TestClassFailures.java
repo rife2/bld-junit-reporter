@@ -30,6 +30,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @SuppressWarnings("PMD.TestClassWithoutTestCases")
 public final class TestClassFailures {
+
     private final String className;
     private final List<TestFailure> failures;
     private final Lock instanceLock = new ReentrantLock();
@@ -48,6 +49,53 @@ public final class TestClassFailures {
         this.totalFailures = 0;
         this.totalTime = 0.0;
         this.isSorted = true; // Empty list is considered sorted
+    }
+
+    /**
+     * Calculates the hash code for this object.
+     *
+     * @return the hash code
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(className);
+    }
+
+    /**
+     * Determines if this object is equal to another object.
+     *
+     * @param obj the reference object with which to compare
+     * @return {@code true} if this object is the same as the obj argument; {@code false} otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        var that = (TestClassFailures) obj;
+        return Objects.equals(className, that.className);
+    }
+
+    /**
+     * Returns a string representation of this object.
+     *
+     * @return a string representation of this object
+     */
+    @Override
+    public String toString() {
+        instanceLock.lock();
+        try {
+            return "TestClassFailures{" +
+                    "className='" + className + '\'' +
+                    ", totalFailures=" + totalFailures +
+                    ", totalTime=" + totalTime +
+                    '}';
+        } finally {
+            instanceLock.unlock();
+        }
     }
 
     /**
@@ -121,53 +169,6 @@ public final class TestClassFailures {
         instanceLock.lock();
         try {
             return totalTime;
-        } finally {
-            instanceLock.unlock();
-        }
-    }
-
-    /**
-     * Calculates the hash code for this object.
-     *
-     * @return the hash code
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(className);
-    }
-
-    /**
-     * Determines if this object is equal to another object.
-     *
-     * @param obj the reference object with which to compare
-     * @return {@code true} if this object is the same as the obj argument; {@code false} otherwise
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        var that = (TestClassFailures) obj;
-        return Objects.equals(className, that.className);
-    }
-
-    /**
-     * Returns a string representation of this object.
-     *
-     * @return a string representation of this object
-     */
-    @Override
-    public String toString() {
-        instanceLock.lock();
-        try {
-            return "TestClassFailures{" +
-                    "className='" + className + '\'' +
-                    ", totalFailures=" + totalFailures +
-                    ", totalTime=" + totalTime +
-                    '}';
         } finally {
             instanceLock.unlock();
         }

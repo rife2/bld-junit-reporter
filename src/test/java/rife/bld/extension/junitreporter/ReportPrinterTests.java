@@ -35,9 +35,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ExtendWith({RandomStringResolver.class, RandomRangeResolver.class})
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class ReportPrinterTests {
+
     @Nested
     @DisplayName("Failures By Group Index Tests")
     class FailuresByGroupIndexTests {
+
         @Test
         void failuresByGroupIndexWithEmptyMap() {
             assertThatThrownBy(() -> ReportPrinter.getFailuresByGroupIndex(Map.of(), 0))
@@ -90,6 +92,7 @@ class ReportPrinterTests {
     @Nested
     @DisplayName("Indent Method Tests")
     class IndentMethodTests {
+
         @Test
         void identWithZeroIndentSize() {
             var input = "test";
@@ -188,6 +191,7 @@ class ReportPrinterTests {
     @CaptureOutput
     @DisplayName("Print Failure Tests")
     class PrintFailureTests {
+
         @Test
         void printFailureWithNullFailureIndex(CapturedOutput output) {
             var failure = new TestFailure("testMethod", "Test Method", "TestClass",
@@ -247,6 +251,7 @@ class ReportPrinterTests {
     @CaptureOutput
     @DisplayName("Print Stack Trace Tests")
     class PrintStackTraceTests {
+
         @Test
         void doesNotPrintWhenStackTraceEmpty(CapturedOutput output) {
             var failureWithEmptyStackTrace = new TestFailure(
@@ -290,6 +295,7 @@ class ReportPrinterTests {
     @CaptureOutput
     @DisplayName("Print Summary Tests")
     class PrintSummaryTests {
+
         @Test
         void printSummaryWithEmptyGroupedFailures(CapturedOutput output) {
             var groupedFailures = Map.<String, TestClassFailures>of();

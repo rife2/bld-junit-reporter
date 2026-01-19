@@ -34,6 +34,7 @@ import java.util.Objects;
 public record TestFailure(String testName, String displayName, String className, String failureType,
                           String failureMessage, String stackTrace, double time)
         implements Comparable<TestFailure> {
+
     /**
      * Constructs a new {@code TestFailure} object.
      *
