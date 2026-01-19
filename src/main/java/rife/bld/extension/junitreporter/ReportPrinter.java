@@ -17,6 +17,7 @@
 package rife.bld.extension.junitreporter;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import rife.bld.extension.tools.ObjectsUtils;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -141,7 +142,7 @@ public final class ReportPrinter {
      * @param failureIndex The index of the failure within the group, or {@code null} if not applicable
      */
     public static void printFailure(TestFailure failure, Integer groupIndex, Integer failureIndex) {
-        var prefix = (groupIndex != null && failureIndex != null)
+        var prefix = (ObjectsUtils.isNotNull(groupIndex, failureIndex))
                 ? String.format("[%d.%d] ", groupIndex, failureIndex)
                 : "";
 
