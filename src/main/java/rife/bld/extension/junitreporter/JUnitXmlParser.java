@@ -19,6 +19,7 @@ package rife.bld.extension.junitreporter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import rife.bld.extension.tools.IOTools;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.nio.file.Files;
@@ -258,7 +259,7 @@ public final class JUnitXmlParser {
     @SuppressWarnings("PMD.ExceptionAsFlowControl")
     public static void validateFile(Path path) throws JUnitXmlParserException {
         try {
-            if (!Files.exists(path)) {
+            if (IOTools.notExists(path)) {
                 throw new JUnitXmlParserException("File does not exist: " + path);
             }
             if (!Files.isReadable(path)) {

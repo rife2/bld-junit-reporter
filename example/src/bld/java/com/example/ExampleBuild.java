@@ -3,7 +3,7 @@ package com.example;
 import rife.bld.BuildCommand;
 import rife.bld.Project;
 import rife.bld.extension.JUnitReporterOperation;
-import rife.bld.extension.tools.IOUtils;
+import rife.bld.extension.tools.IOTools;
 
 import java.io.File;
 import java.util.List;
@@ -45,7 +45,7 @@ public class ExampleBuild extends Project {
         var op = testOperation().fromProject(this);
         // Set the reports directory
         op.testToolOptions().reportsDir(
-                IOUtils.resolveFile(buildDirectory(),"test-results", "test")
+                IOTools.resolveFile(buildDirectory(),"test-results", "test")
         );
         op.execute();
     }
