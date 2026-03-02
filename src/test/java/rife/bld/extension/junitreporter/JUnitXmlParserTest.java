@@ -22,7 +22,6 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -34,9 +33,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import rife.bld.extension.testing.RandomRange;
-import rife.bld.extension.testing.RandomRangeResolver;
 import rife.bld.extension.testing.RandomString;
-import rife.bld.extension.testing.RandomStringResolver;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,7 +47,7 @@ import static java.io.File.separatorChar;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
-@SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 class JUnitXmlParserTest {
 
     @Nested
@@ -914,7 +911,6 @@ class JUnitXmlParserTest {
 
     @Nested
     @DisplayName("Parse Time Tests")
-    @ExtendWith({RandomStringResolver.class, RandomRangeResolver.class})
     class ParseTimeTests {
 
         @ParameterizedTest
