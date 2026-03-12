@@ -60,7 +60,7 @@ public class JUnitReporterBuild extends Project {
                 .include(dependency("org.assertj", "assertj-core",
                         version(3, 27, 7)))
                 .include(dependency("org.mockito", "mockito-core",
-                        version(5, 22, 0)));
+                        version(5, 23, 0)));
         javadocOperation()
                 .javadocOptions()
                 .author()
