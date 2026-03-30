@@ -47,7 +47,7 @@ public class ExampleBuild extends Project {
         var op = testOperation().fromProject(this);
         // Set the reports directory
         op.testToolOptions().reportsDir(
-                IOTools.resolveFile(buildDirectory(),"test-results", "test")
+                IOTools.resolveFile(buildDirectory(), "test-results", "test")
         );
         op.execute();
     }

@@ -34,7 +34,7 @@ public class JUnitReporterBuild extends Project {
         pkg = "rife.bld.extension";
         name = "JUnit Reporter";
         archiveBaseName = "bld-junit-reporter";
-        version = version(0, 9, 3, "SNAPSHOT");
+        version = version(1, 0, 0);
 
         javaRelease = 17;
 
