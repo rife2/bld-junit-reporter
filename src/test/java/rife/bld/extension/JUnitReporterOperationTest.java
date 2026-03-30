@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import rife.bld.BaseProject;
 import rife.bld.extension.junitreporter.JUnitXmlParser;
+import rife.bld.extension.junitreporter.JUnitXmlParserException;
 import rife.bld.extension.testing.CaptureOutput;
 import rife.bld.extension.testing.CapturedOutput;
 import rife.bld.extension.testing.LoggingExtension;
@@ -180,7 +181,7 @@ class JUnitReporterOperationTest {
             when(mockedProject.buildDirectory()).thenReturn(new File("build"));
 
             var operation = new JUnitReporterOperation().fromProject(mockedProject);
-            assertThat(operation).extracting("isPrintAll_").isEqualTo(true);
+            assertThat(operation).extracting("printAll_").isEqualTo(true);
         }
 
         @Test
@@ -319,7 +320,7 @@ class JUnitReporterOperationTest {
         }
 
         @Test
-        void executeThrowsUnexpectedRuntimeException() {
+        void executeThrowsUnexpectedException() {
             LOGGER.setLevel(Level.WARNING);
             var mockedProject = mock(BaseProject.class);
             when(mockedProject.buildDirectory()).thenReturn(new File("example/build"));
@@ -331,13 +332,13 @@ class JUnitReporterOperationTest {
                     .reportFile(reportPath);
 
             try (var mockedParser = Mockito.mockStatic(JUnitXmlParser.class)) {
-                var unexpectedException = new RuntimeException("Simulated unexpected error");
+                var unexpectedException = new JUnitXmlParserException("Simulated unexpected error");
                 mockedParser.when(() -> JUnitXmlParser.extractTestFailuresGrouped(anyString()))
                         .thenThrow(unexpectedException);
 
                 assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-                var message = "Unexpected error: Simulated unexpected error";
+                var message = "Failed to parse JUnit report: Simulated unexpected error";
                 assertThat(TEST_LOG_HANDLER.getLogMessages()).contains(message);
             }
         }
@@ -355,13 +356,13 @@ class JUnitReporterOperationTest {
                     .reportFile(reportPath);
 
             try (var mockedParser = Mockito.mockStatic(JUnitXmlParser.class)) {
-                var unexpectedException = new RuntimeException("Simulated unexpected error");
+                var unexpectedException = new JUnitXmlParserException("Simulated unexpected error");
                 mockedParser.when(() -> JUnitXmlParser.extractTestFailuresGrouped(anyString()))
                         .thenThrow(unexpectedException);
 
                 assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-                var message = "Unexpected error";
+                var message = "Failed to parse JUnit report: Simulated unexpected error";
                 assertThat(TEST_LOG_HANDLER.getLogMessages()).contains(message);
             }
         }
@@ -379,7 +380,7 @@ class JUnitReporterOperationTest {
                     .reportFile(reportPath);
 
             try (var mockedParser = Mockito.mockStatic(JUnitXmlParser.class)) {
-                var unexpectedException = new RuntimeException("Simulated unexpected error");
+                var unexpectedException = new JUnitXmlParserException("Simulated unexpected error");
                 mockedParser.when(() -> JUnitXmlParser.extractTestFailuresGrouped(anyString()))
                         .thenThrow(unexpectedException);
 
@@ -402,7 +403,7 @@ class JUnitReporterOperationTest {
                     .reportFile(reportPath);
 
             try (var mockedParser = Mockito.mockStatic(JUnitXmlParser.class)) {
-                var unexpectedException = new RuntimeException("Simulated unexpected error");
+                var unexpectedException = new JUnitXmlParserException("Simulated unexpected error");
                 mockedParser.when(() -> JUnitXmlParser.extractTestFailuresGrouped(anyString()))
                         .thenThrow(unexpectedException);
 
@@ -474,7 +475,8 @@ class JUnitReporterOperationTest {
 
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-            assertThat(TEST_LOG_HANDLER.getLogMessages()).contains("The failure index is out of bounds");
+            assertThat(TEST_LOG_HANDLER.getLogMessages())
+                    .contains("The failure index is out of bounds");
         }
 
         @Test
@@ -516,7 +518,8 @@ class JUnitReporterOperationTest {
 
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-            assertThat(TEST_LOG_HANDLER.getLogMessages()).contains("The group index is out of bounds");
+            assertThat(TEST_LOG_HANDLER.getLogMessages())
+                    .contains("The group index is out of bounds");
         }
 
         @Test

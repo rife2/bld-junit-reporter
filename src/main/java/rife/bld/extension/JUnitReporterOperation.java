@@ -16,17 +16,19 @@
 
 package rife.bld.extension;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.BaseProject;
 import rife.bld.extension.junitreporter.JUnitXmlParser;
 import rife.bld.extension.junitreporter.JUnitXmlParserException;
 import rife.bld.extension.junitreporter.ReportPrinter;
+import rife.bld.extension.junitreporter.TestClassFailures;
 import rife.bld.operations.AbstractProcessOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -58,67 +60,50 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
     private static final String ARG_ALL = "--all";
     private static final Pattern ARG_MATCH_PATTERN = Pattern.compile("^--(i|index)=(\\d+(?:\\.\\d+)?)$");
     private static final Logger LOGGER = Logger.getLogger(JUnitReporterOperation.class.getName());
+
     private String argIndex_;
     private boolean failOnSummary_;
-    private boolean isPrintAll_;
+    private boolean printAll_;
     private BaseProject project_;
     private Path reportFile_;
 
     /**
-     * Preforms the operation.
+     * Performs the operation.
      *
      * @throws ExitStatusException if the operation fails
      */
     @Override
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     public void execute() throws ExitStatusException {
-        var status = EXIT_FAILURE;
         if (project_ == null) {
-            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-                LOGGER.log(Level.SEVERE, "A project is required to run this operation.");
-            }
-        } else if (reportFile_ == null) {
-            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-                LOGGER.log(Level.SEVERE, "A report file is required to run this operation.");
-            }
-        } else {
-            try {
-                var groupedFailures =
-                        JUnitXmlParser.extractTestFailuresGrouped(reportFile_.toString());
+            logSevere("A project is required to run this operation.");
+            ExitStatusException.throwOnFailure(EXIT_FAILURE);
+        }
 
-                if (!groupedFailures.isEmpty()) {
-                    if (isPrintAll_) {
-                        for (var i = 0; i < groupedFailures.size(); i++) {
-                            ReportPrinter.printDetails(String.valueOf(i + 1), groupedFailures);
-                        }
-                    } else if (argIndex_ != null) {
-                        ReportPrinter.printDetails(argIndex_, groupedFailures);
-                    } else {
-                        ReportPrinter.printSummary(groupedFailures);
-                    }
-                    if (!failOnSummary_) {
-                        status = EXIT_SUCCESS;
-                    }
-                } else {
+        if (reportFile_ == null) {
+            logSevere("A report file is required to run this operation.");
+            ExitStatusException.throwOnFailure(EXIT_FAILURE);
+        }
+
+        var status = EXIT_FAILURE;
+
+        try {
+            var groupedFailures =
+                    JUnitXmlParser.extractTestFailuresGrouped(reportFile_.toString());
+
+            if (groupedFailures.isEmpty()) {
+                status = EXIT_SUCCESS;
+            } else {
+                printFailures(groupedFailures);
+                if (!failOnSummary_) {
                     status = EXIT_SUCCESS;
                 }
-            } catch (JUnitXmlParserException e) {
-                if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-                    LOGGER.log(Level.SEVERE, "Failed to parse JUnit report: " + e.getMessage());
-                }
-            } catch (IndexOutOfBoundsException e) {
-                if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-                    LOGGER.log(Level.SEVERE, e.getMessage());
-                }
-            } catch (Exception e) {
-                if (!silent()) {
-                    if (LOGGER.isLoggable(Level.FINE)) {
-                        LOGGER.log(Level.FINE, "Unexpected error", e);
-                    } else if (LOGGER.isLoggable(Level.SEVERE)) {
-                        LOGGER.log(Level.SEVERE, "Unexpected error: " + e.getMessage());
-                    }
-                }
             }
+        } catch (JUnitXmlParserException e) {
+            logSevere("Failed to parse JUnit report: " + e.getMessage(), e);
+        } catch (IndexOutOfBoundsException e) {
+            logSevere(e.getMessage(), e);
+        } catch (NumberFormatException e) {
+            logSevere("Unexpected error: " + e.getMessage(), e);
         }
 
         ExitStatusException.throwOnFailure(status);
@@ -139,36 +124,20 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
      * <p>
      * If not set, the {@link #reportFile() report file} is set to the default location for JUnit reports.
      *
-     * @param project the project to use as the context for this operation;
+     * @param project the project to use as the context for this operation
      * @return this operation
      */
     @Override
-    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public JUnitReporterOperation fromProject(BaseProject project) {
-        project_ = project;
+        project_ = Objects.requireNonNull(project, "The project must not be null");
 
-        if (project_ != null) {
-            if (reportFile_ == null) {
-                reportFile_ = Path.of(project_.buildDirectory().getAbsolutePath(), "test-results", "test",
-                        "TEST-junit-jupiter.xml");
-            }
-
-            // parse the run arguments if any
-            var args = project.arguments();
-            if (!args.isEmpty()) {
-                var arg = args.get(0);
-                if (ARG_ALL.equals(arg)) {
-                    isPrintAll_ = true;
-                    args.remove(0);
-                } else {
-                    var matcher = ARG_MATCH_PATTERN.matcher(arg);
-                    if (matcher.matches()) {
-                        args.remove(0);
-                        argIndex_ = matcher.group(2);
-                    }
-                }
-            }
+        if (reportFile_ == null) {
+            reportFile_ = Path.of(project.buildDirectory().getAbsolutePath(), "test-results", "test",
+                    "TEST-junit-jupiter.xml");
         }
+
+        parseArguments(project.arguments());
+
         return this;
     }
 
@@ -238,5 +207,62 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
     public JUnitReporterOperation reportFile(String reportFile) {
         reportFile_ = Path.of(reportFile);
         return this;
+    }
+
+    private void logSevere(String message) {
+        if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
+            LOGGER.log(Level.SEVERE, message);
+        }
+    }
+
+    private void logSevere(String message, Exception e) {
+        if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
+            LOGGER.log(Level.SEVERE, message, e);
+        }
+    }
+
+    /**
+     * Parses the first run argument, setting {@link #printAll_} or {@link #argIndex_} as appropriate.
+     * <p>
+     * Valid arguments are moved after processing.
+     *
+     * @param args the project's argument list (mutated by removing a consumed argument)
+     */
+    private void parseArguments(List<String> args) {
+        if (args.isEmpty()) {
+            return;
+        }
+
+        var arg = args.get(0);
+
+        if (ARG_ALL.equals(arg)) {
+            printAll_ = true;
+            args.remove(0);
+            return;
+        }
+
+        var matcher = ARG_MATCH_PATTERN.matcher(arg);
+        if (matcher.matches()) {
+            argIndex_ = matcher.group(2);
+            args.remove(0);
+        }
+    }
+
+    /**
+     * Prints failure details or a summary depending on the current mode flags.
+     *
+     * @param groupedFailures the non-empty grouped failures to print
+     */
+    private void printFailures(Map<String, TestClassFailures> groupedFailures)
+            throws IndexOutOfBoundsException, NumberFormatException {
+        if (printAll_) {
+            for (var i = 0; i < groupedFailures.size(); i++) {
+                ReportPrinter.printDetails(String.valueOf(i + 1), groupedFailures);
+            }
+        } else if (argIndex_ != null) {
+            ReportPrinter.printDetails(argIndex_, groupedFailures);
+        } else {
+            ReportPrinter.printSummary(groupedFailures);
+        }
     }
 }

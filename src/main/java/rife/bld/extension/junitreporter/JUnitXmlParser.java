@@ -19,9 +19,12 @@ package rife.bld.extension.junitreporter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 import rife.bld.extension.tools.IOTools;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,7 +60,7 @@ public final class JUnitXmlParser {
         // Prevent instantiation
     }
 
-    @SuppressWarnings({"HttpUrlsUsage", "PMD.AvoidCatchingGenericException"})
+    @SuppressWarnings({"HttpUrlsUsage"})
     private static DocumentBuilderFactory createFactory() {
         var factory = DocumentBuilderFactory.newInstance();
         factory.setValidating(false);
@@ -66,7 +69,7 @@ public final class JUnitXmlParser {
         try {
             factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
             factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        } catch (Exception ignored) {
+        } catch (ParserConfigurationException ignored) {
             // Features might not be supported by all parsers
         }
         return factory;
@@ -126,8 +129,7 @@ public final class JUnitXmlParser {
      * @return Map of class names to {@link TestClassFailures TestClassFailures} objects containing grouped failures
      * @throws JUnitXmlParserException if parsing fails or the file doesn't exist
      */
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    @SuppressFBWarnings({"EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS", "PATH_TRAVERSAL_IN", "XXE_DOCUMENT"})
+    @SuppressFBWarnings({"PATH_TRAVERSAL_IN", "XXE_DOCUMENT"})
     public static Map<String, TestClassFailures> extractTestFailuresGrouped(String xmlFilePath) {
         Objects.requireNonNull(xmlFilePath, "XML file path cannot be null");
 
@@ -141,7 +143,7 @@ public final class JUnitXmlParser {
 
             return parseTestCases(document.getElementsByTagName(TESTCASE_TAG));
 
-        } catch (Exception e) {
+        } catch (ParserConfigurationException | IOException | SAXException | IllegalArgumentException e) {
             throw new JUnitXmlParserException("Failed to parse XML file: " + xmlFilePath, e);
         }
     }
