@@ -219,11 +219,8 @@ class JUnitReporterOperationTest {
         }
 
         @Test
-        void fromProjectHandlesNullProject() {
-            var operation = new JUnitReporterOperation().fromProject(null);
-
-            assertThat(operation.reportFile()).isNull();
-            assertThat(operation).extracting("argIndex_").isNull();
+        void fromProjectThrowsNullPointerExceptionWhenProjectIsNull() {
+            assertThatNullPointerException().isThrownBy(() -> new JUnitReporterOperation().fromProject(null));
         }
     }
 
