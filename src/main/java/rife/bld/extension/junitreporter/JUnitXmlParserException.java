@@ -19,7 +19,11 @@ package rife.bld.extension.junitreporter;
 import java.io.Serial;
 
 /**
- * Custom exception for XML parsing errors.
+ * Unchecked exception thrown when JUnit XML parsing fails.
+ * <p>
+ * Wraps {@link javax.xml.parsers.ParserConfigurationException},
+ * {@link org.xml.sax.SAXException}, {@link java.io.IOException},
+ * or file access errors encountered while reading JUnit reports.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
@@ -36,6 +40,15 @@ public class JUnitXmlParserException extends RuntimeException {
      */
     public JUnitXmlParserException(String message) {
         super(message);
+    }
+
+    /**
+     * Constructs a new {@code JUnitXmlParserException} with the specified cause.
+     *
+     * @param cause the cause of the exception
+     */
+    public JUnitXmlParserException(Throwable cause) {
+        super(cause);
     }
 
     /**
