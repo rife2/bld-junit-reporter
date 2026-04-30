@@ -143,7 +143,7 @@ public final class ReportPrinter {
      * @param failureIndex The index of the failure within the group, or {@code null} if not applicable
      */
     public static void printFailure(TestFailure failure, Integer groupIndex, Integer failureIndex) {
-        var prefix = (ObjectTools.isNotNull(groupIndex, failureIndex))
+        var prefix = (ObjectTools.allNotEmpty(groupIndex, failureIndex))
                 ? String.format("[%d.%d] ", groupIndex, failureIndex)
                 : "";
 

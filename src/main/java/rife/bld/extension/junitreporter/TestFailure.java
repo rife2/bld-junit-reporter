@@ -19,15 +19,18 @@ package rife.bld.extension.junitreporter;
 import java.util.Objects;
 
 /**
- * Represents a failure that occurred during the execution of a specific test case in a test suite.
+ * Immutable record representing a test case failure extracted from JUnit XML.
+ * <p>
+ * Instances are naturally ordered by class name, then test name for consistent
+ * sorting within {@link TestClassFailures}.
  *
- * @param testName       The name of the test case.
- * @param displayName    The display name of the test case.
- * @param className      The name of the test class.
- * @param failureType    The type of the failure.
- * @param failureMessage The failure message.
- * @param stackTrace     The stack trace of the failure.
- * @param time           The execution time of the test case.
+ * @param testName       the test method name; never null
+ * @param displayName    the JUnit display name extracted from {@code system-out}; empty string if not present
+ * @param className      the fully qualified test class name; never null
+ * @param failureType    the exception class name from the {@code type} attribute; never null
+ * @param failureMessage the failure message from the {@code message} attribute; never null
+ * @param stackTrace     the stack trace content of the {@code failure} or {@code error} element; empty string if not present
+ * @param time           the execution time in seconds from the {@code time} attribute; must be >= 0
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
@@ -36,24 +39,28 @@ public record TestFailure(String testName, String displayName, String className,
         implements Comparable<TestFailure> {
 
     /**
-     * Constructs a new {@code TestFailure} object.
+     * Constructs a new {@code TestFailure} instance.
+     * <p>
+     * Normalizes {@code null} values for {@code displayName} and {@code stackTrace} to empty strings.
      *
-     * @param testName       The name of the test case.
-     * @param displayName    The display name of the test case.
-     * @param className      The name of the test class.
-     * @param failureType    The type of failure that occurred.
-     * @param failureMessage The detailed message describing the failure.
-     * @param stackTrace     The stack trace of the failure.
-     * @param time           The execution time of the test case.
-     * @throws NullPointerException     If any of the required parameters are null.
-     * @throws IllegalArgumentException If the execution time is negative.
+     * @param testName       the test method name; must not be null
+     * @param displayName    the JUnit display name; may be null, normalized to empty string
+     * @param className      the fully qualified test class name; must not be null
+     * @param failureType    the exception class name; must not be null
+     * @param failureMessage the failure message; must not be null
+     * @param stackTrace     the stack trace; may be null, normalized to empty string
+     * @param time           the execution time in seconds; must be >= 0
+     * @throws NullPointerException     if {@code testName}, {@code className}, {@code failureType},
+     *                                  or {@code failureMessage} is null
+     * @throws IllegalArgumentException if {@code time} is negative
      */
     public TestFailure {
         Objects.requireNonNull(testName, "Test name cannot be null");
         Objects.requireNonNull(className, "Class name cannot be null");
         Objects.requireNonNull(failureType, "Failure type cannot be null");
         Objects.requireNonNull(failureMessage, "Failure message cannot be null");
-        stackTrace = stackTrace != null ? stackTrace : ""; // Allow null, convert to empty
+        displayName = displayName != null ? displayName : "";
+        stackTrace = stackTrace != null ? stackTrace : "";
 
         if (time < 0) {
             throw new IllegalArgumentException("Time cannot be negative");
@@ -61,11 +68,14 @@ public record TestFailure(String testName, String displayName, String className,
     }
 
     /**
-     * Compares this object to another object.
+     * Compares this failure to another by class name, then test name.
+     * <p>
+     * This ordering is consistent with {@code equals} and ensures failures
+     * are grouped by class when sorted.
      *
-     * @param other the object to compare to
-     * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than
-     * the specified object
+     * @param other the other {@code TestFailure} to compare to
+     * @return a negative integer, zero, or a positive integer as this object
+     * is less than, equal to, or greater than the specified object
      */
     @Override
     public int compareTo(TestFailure other) {

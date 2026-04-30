@@ -47,17 +47,17 @@ import static org.mockito.Mockito.when;
 class JUnitReporterOperationTest {
 
     @SuppressWarnings("LoggerInitializedWithForeignClass")
-    private static final Logger LOGGER = Logger.getLogger(JUnitReporterOperation.class.getName());
-    private static final TestLogHandler TEST_LOG_HANDLER = new TestLogHandler();
+    private static final Logger logger = Logger.getLogger(JUnitReporterOperation.class.getName());
+    private static final TestLogHandler testLogHandler = new TestLogHandler();
 
     @RegisterExtension
     @SuppressWarnings("unused")
-    private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(LOGGER, TEST_LOG_HANDLER);
+    private static final LoggingExtension loggingExtension = new LoggingExtension(logger, testLogHandler);
 
     private void assertLogContains(String message) {
-        assertThat(TEST_LOG_HANDLER.containsMessage(message))
+        assertThat(testLogHandler.containsMessage(message))
                 .as("Expected log to contain message: '%s'. Actual log messages: %s",
-                        message, TEST_LOG_HANDLER.getLogMessages())
+                        message, testLogHandler.getLogMessages())
                 .isTrue();
     }
 
@@ -68,6 +68,11 @@ class JUnitReporterOperationTest {
         assertThat(reportFile).exists();
         assertThat(reportFile).isFile();
         assertThat(reportFile.length()).isGreaterThan(0);
+    }
+
+    @BeforeEach
+    void setup() {
+        testLogHandler.clear();
     }
 
     @Nested
@@ -115,21 +120,6 @@ class JUnitReporterOperationTest {
     class ErrorHandlingTests {
 
         @Test
-        void executeWithNonExistentReportFileLogging() {
-            var mockedProject = mock(BaseProject.class);
-            when(mockedProject.buildDirectory()).thenReturn(new File("build"));
-
-            var operation = new JUnitReporterOperation()
-                    .fromProject(mockedProject)
-                    .reportFile("does-not-exist.xml");
-
-            assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
-
-            // Should log the parser exception
-            assertLogContains("Failed to parse JUnit report");
-        }
-
-        @Test
         void executeWithSilentMode() {
             var operation = new JUnitReporterOperation().silent(true);
 
@@ -137,7 +127,7 @@ class JUnitReporterOperationTest {
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
             // In silent mode, no log messages should be recorded
-            assertThat(TEST_LOG_HANDLER.getLogMessages()).isEmpty();
+            assertThat(testLogHandler.getLogMessages()).isEmpty();
         }
     }
 
@@ -220,6 +210,7 @@ class JUnitReporterOperationTest {
         }
 
         @Test
+        @SuppressWarnings("DataFlowIssue")
         void fromProjectThrowsNullPointerExceptionWhenProjectIsNull() {
             assertThatNullPointerException().isThrownBy(() -> new JUnitReporterOperation().fromProject(null));
         }
@@ -232,37 +223,37 @@ class JUnitReporterOperationTest {
         @Test
         void executeWithLoggingDisabled() {
             // Disable SEVERE logging to test the logging condition branches
-            LOGGER.setLevel(Level.OFF);
+            logger.setLevel(Level.OFF);
 
             var operation = new JUnitReporterOperation();
 
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
             // No messages should be logged when logging is disabled
-            assertThat(TEST_LOG_HANDLER.getLogMessages()).isEmpty();
+            assertThat(testLogHandler.getLogMessages()).isEmpty();
         }
 
         @Test
-        void executeWithReportFileAndSilentMode() {
+        void executeWithReportFileBlankAndLoggingDisabled() {
+            logger.setLevel(Level.OFF);
+
             var operation = new JUnitReporterOperation()
                     .fromProject(new BaseProject())
-                    .reportFile((Path) null)
+                    .reportFile("src/test/resources/blank.xml");
+            assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
+
+            assertThat(testLogHandler.getLogMessages()).isEmpty();
+        }
+
+        @Test
+        void executeWithReportFileBlankAndSilentMode() {
+            var operation = new JUnitReporterOperation()
+                    .fromProject(new BaseProject())
+                    .reportFile("src/test/resources/blank.xml")
                     .silent(true);
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-            assertThat(TEST_LOG_HANDLER.getLogMessages()).isEmpty();
-        }
-
-        @Test
-        void executeWithReportFileNullAndLoggingDisabled() {
-            LOGGER.setLevel(Level.OFF);
-
-            var operation = new JUnitReporterOperation()
-                    .fromProject(new BaseProject())
-                    .reportFile((Path) null);
-            assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
-
-            assertThat(TEST_LOG_HANDLER.getLogMessages()).isEmpty();
+            assertThat(testLogHandler.getLogMessages()).isEmpty();
         }
     }
 
@@ -302,11 +293,6 @@ class JUnitReporterOperationTest {
     class executeTests {
 
         @Test
-        void executeConstructProcessCommandListMustBeEmpty() {
-            assertThat(new JUnitReporterOperation().executeConstructProcessCommandList()).isEqualTo(List.of());
-        }
-
-        @Test
         @CaptureOutput
         void executeLargeReport(CapturedOutput output) {
             var operation = new JUnitReporterOperation()
@@ -321,15 +307,13 @@ class JUnitReporterOperationTest {
 
         @Test
         void executeThrowsUnexpectedException() {
-            LOGGER.setLevel(Level.WARNING);
+            logger.setLevel(Level.WARNING);
             var mockedProject = mock(BaseProject.class);
             when(mockedProject.buildDirectory()).thenReturn(new File("example/build"));
 
-            var reportPath = Path.of("test-report.xml");
-
             var operation = new JUnitReporterOperation()
                     .fromProject(mockedProject)
-                    .reportFile(reportPath);
+                    .reportFile("src/test/resources/clean.xml");
 
             try (var mockedParser = Mockito.mockStatic(JUnitXmlParser.class)) {
                 var unexpectedException = new JUnitXmlParserException("Simulated unexpected error");
@@ -339,21 +323,19 @@ class JUnitReporterOperationTest {
                 assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
                 var message = "Failed to parse JUnit report: Simulated unexpected error";
-                assertThat(TEST_LOG_HANDLER.getLogMessages()).contains(message);
+                assertThat(testLogHandler.getLogMessages()).contains(message);
             }
         }
 
         @Test
         void executeThrowsUnexpectedRuntimeExceptionWithFineLogging() {
-            LOGGER.setLevel(Level.FINE);
+            logger.setLevel(Level.FINE);
             var mockedProject = mock(BaseProject.class);
             when(mockedProject.buildDirectory()).thenReturn(new File("example/build"));
 
-            var reportPath = Path.of("test-report.xml");
-
             var operation = new JUnitReporterOperation()
                     .fromProject(mockedProject)
-                    .reportFile(reportPath);
+                    .reportFile("src/test/resources/clean.xml");
 
             try (var mockedParser = Mockito.mockStatic(JUnitXmlParser.class)) {
                 var unexpectedException = new JUnitXmlParserException("Simulated unexpected error");
@@ -363,13 +345,13 @@ class JUnitReporterOperationTest {
                 assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
                 var message = "Failed to parse JUnit report: Simulated unexpected error";
-                assertThat(TEST_LOG_HANDLER.getLogMessages()).contains(message);
+                assertThat(testLogHandler.getLogMessages()).contains(message);
             }
         }
 
         @Test
         void executeThrowsUnexpectedRuntimeExceptionWithNoLogging() {
-            LOGGER.setLevel(Level.OFF);
+            logger.setLevel(Level.OFF);
             var mockedProject = mock(BaseProject.class);
             when(mockedProject.buildDirectory()).thenReturn(new File("example/build"));
 
@@ -386,7 +368,7 @@ class JUnitReporterOperationTest {
 
                 assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-                assertThat(TEST_LOG_HANDLER.getLogMessages()).isEmpty();
+                assertThat(testLogHandler.getLogMessages()).isEmpty();
             }
         }
 
@@ -409,7 +391,7 @@ class JUnitReporterOperationTest {
 
                 assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-                assertThat(TEST_LOG_HANDLER.getLogMessages()).isEmpty();
+                assertThat(testLogHandler.getLogMessages()).isEmpty();
             }
         }
 
@@ -475,13 +457,13 @@ class JUnitReporterOperationTest {
 
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-            assertThat(TEST_LOG_HANDLER.getLogMessages())
+            assertThat(testLogHandler.getLogMessages())
                     .contains("The failure index is out of bounds");
         }
 
         @Test
         void executeWithInvalidFailureIndexAndLoggingDisabled() {
-            LOGGER.setLevel(Level.OFF);
+            logger.setLevel(Level.OFF);
             var mockedProject = mock(BaseProject.class);
             when(mockedProject.arguments()).thenReturn(new ArrayList<>(List.of("--i=2.3")));
             when(mockedProject.buildDirectory()).thenReturn(new File("example/build"));
@@ -490,7 +472,7 @@ class JUnitReporterOperationTest {
 
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-            assertThat(TEST_LOG_HANDLER.getLogMessages()).isEmpty();
+            assertThat(testLogHandler.getLogMessages()).isEmpty();
         }
 
         @Test
@@ -505,7 +487,7 @@ class JUnitReporterOperationTest {
 
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-            assertThat(TEST_LOG_HANDLER.getLogMessages()).isEmpty();
+            assertThat(testLogHandler.getLogMessages()).isEmpty();
         }
 
         @Test
@@ -518,7 +500,7 @@ class JUnitReporterOperationTest {
 
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-            assertThat(TEST_LOG_HANDLER.getLogMessages())
+            assertThat(testLogHandler.getLogMessages())
                     .contains("The group index is out of bounds");
         }
 
@@ -531,19 +513,11 @@ class JUnitReporterOperationTest {
         }
 
         @Test
-        void executeWithNoProject() {
-            var operation = new JUnitReporterOperation();
-            assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
-
-            assertLogContains("A project is required to run this operation");
-        }
-
-        @Test
         void executeWithNoReportFile() {
             var operation = new JUnitReporterOperation().fromProject(new BaseProject());
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-            assertLogContains("File does not exist");
+            assertLogContains("A report file is required to run this operation.");
         }
 
         @Test
@@ -563,7 +537,7 @@ class JUnitReporterOperationTest {
 
         @Test
         void executeWithParserExceptionAndLoggingDisabled() {
-            LOGGER.setLevel(Level.OFF);
+            logger.setLevel(Level.OFF);
             var project = mock(BaseProject.class);
             when(project.buildDirectory()).thenReturn(new File("build"));
 
@@ -574,7 +548,7 @@ class JUnitReporterOperationTest {
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
             // Verify parser error is not logged when silent mode is enabled
-            assertThat(TEST_LOG_HANDLER.getLogMessages()).isEmpty();
+            assertThat(testLogHandler.getLogMessages()).isEmpty();
         }
 
         @Test
@@ -590,15 +564,15 @@ class JUnitReporterOperationTest {
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
             // Verify parser error is not logged when silent mode is enabled
-            assertThat(TEST_LOG_HANDLER.getLogMessages()).isEmpty();
+            assertThat(testLogHandler.getLogMessages()).isEmpty();
         }
 
         @Test
+        @SuppressWarnings("DataFlowIssue")
         void executeWithReportFileNull() {
             var operation = new JUnitReporterOperation().fromProject(new BaseProject());
-            operation.reportFile((Path) null);
-            assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.getLogMessages()).contains("A report file is required to run this operation.");
+            assertThatThrownBy(() -> operation.reportFile((Path) null))
+                    .isInstanceOf(NullPointerException.class);
         }
 
         @Test

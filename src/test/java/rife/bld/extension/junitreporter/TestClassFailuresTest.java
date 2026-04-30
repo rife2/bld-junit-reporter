@@ -45,7 +45,6 @@ class TestClassFailuresTest {
         testClassFailures.addFailure(failure1);
         testClassFailures.addFailure(failure2);
 
-        testClassFailures.sortFailures();
         var failures = testClassFailures.getFailures();
 
         assertThat(failures.get(0)).isEqualTo(failure2);
@@ -227,7 +226,6 @@ class TestClassFailuresTest {
             testClassFailures.addFailure(failure1);
             testClassFailures.addFailure(failure2);
 
-            testClassFailures.sortFailures();
             var failures = testClassFailures.getFailures();
 
             assertThat(failures.get(0)).isEqualTo(failure1);
@@ -238,7 +236,6 @@ class TestClassFailuresTest {
         void sortFailuresWithNoFailures() {
             var testClassFailures = new TestClassFailures("TestClass");
 
-            testClassFailures.sortFailures();
             var failures = testClassFailures.getFailures();
 
             assertThat(failures).isEmpty();
@@ -261,7 +258,6 @@ class TestClassFailuresTest {
             testClassFailures.addFailure(failure1);
             testClassFailures.addFailure(failure2);
 
-            testClassFailures.sortFailures();
             var failures = testClassFailures.getFailures();
 
             assertThat(failures.get(0)).isEqualTo(failure2);

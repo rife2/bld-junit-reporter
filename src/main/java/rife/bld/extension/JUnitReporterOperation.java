@@ -16,12 +16,15 @@
 
 package rife.bld.extension;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import rife.bld.BaseProject;
 import rife.bld.extension.junitreporter.JUnitXmlParser;
 import rife.bld.extension.junitreporter.JUnitXmlParserException;
 import rife.bld.extension.junitreporter.ReportPrinter;
 import rife.bld.extension.junitreporter.TestClassFailures;
-import rife.bld.operations.AbstractProcessOperation;
+import rife.bld.extension.tools.IOTools;
+import rife.bld.extension.tools.ObjectTools;
+import rife.bld.operations.AbstractOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
@@ -55,16 +58,15 @@ import static rife.bld.operations.exceptions.ExitStatusException.EXIT_SUCCESS;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReporterOperation> {
+public class JUnitReporterOperation extends AbstractOperation<JUnitReporterOperation> {
 
     private static final String ARG_ALL = "--all";
-    private static final Pattern ARG_MATCH_PATTERN = Pattern.compile("^--(i|index)=(\\d+(?:\\.\\d+)?)$");
-    private static final Logger LOGGER = Logger.getLogger(JUnitReporterOperation.class.getName());
+    private static final Pattern INDEX_PATTERN = Pattern.compile("^--(i|index)=(\\d+(?:\\.\\d+)?)$");
+    private static final Logger logger = Logger.getLogger(JUnitReporterOperation.class.getName());
 
     private String argIndex_;
     private boolean failOnSummary_;
     private boolean printAll_;
-    private BaseProject project_;
     private Path reportFile_;
 
     /**
@@ -73,13 +75,8 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
      * @throws ExitStatusException if the operation fails
      */
     @Override
-    public void execute() throws ExitStatusException {
-        if (project_ == null) {
-            logSevere("A project is required to run this operation.");
-            ExitStatusException.throwOnFailure(EXIT_FAILURE);
-        }
-
-        if (reportFile_ == null) {
+    public void execute() throws Exception {
+        if (IOTools.notExists(reportFile_)) {
             logSevere("A report file is required to run this operation.");
             ExitStatusException.throwOnFailure(EXIT_FAILURE);
         }
@@ -101,44 +98,12 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
         } catch (JUnitXmlParserException e) {
             logSevere("Failed to parse JUnit report: " + e.getMessage(), e);
         } catch (IndexOutOfBoundsException e) {
-            logSevere(e.getMessage(), e);
+            logSevere(e.getMessage(), e); // message includes the exact cause
         } catch (NumberFormatException e) {
             logSevere("Unexpected error: " + e.getMessage(), e);
         }
 
         ExitStatusException.throwOnFailure(status);
-    }
-
-    /**
-     * Constructs the command list to use for the operation.
-     *
-     * @return the command list
-     */
-    @Override
-    protected List<String> executeConstructProcessCommandList() {
-        return List.of();
-    }
-
-    /**
-     * Configures the operation from a {@link BaseProject}.
-     * <p>
-     * If not set, the {@link #reportFile() report file} is set to the default location for JUnit reports.
-     *
-     * @param project the project to use as the context for this operation
-     * @return this operation
-     */
-    @Override
-    public JUnitReporterOperation fromProject(BaseProject project) {
-        project_ = Objects.requireNonNull(project, "The project must not be null");
-
-        if (reportFile_ == null) {
-            reportFile_ = Path.of(project.buildDirectory().getAbsolutePath(), "test-results", "test",
-                    "TEST-junit-jupiter.xml");
-        }
-
-        parseArguments(project.arguments());
-
-        return this;
     }
 
     /**
@@ -162,6 +127,27 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
     }
 
     /**
+     * Configures the operation from a {@link BaseProject}.
+     * <p>
+     * If not set, the {@link #reportFile() report file} is set to the default location for JUnit reports.
+     *
+     * @param project the project to use as the context for this operation
+     * @return this operation
+     */
+    public JUnitReporterOperation fromProject(@NonNull BaseProject project) {
+        Objects.requireNonNull(project, "The project must not be null");
+
+        if (reportFile_ == null) {
+            reportFile_ = Path.of(project.buildDirectory().getAbsolutePath(), "test-results", "test",
+                    "TEST-junit-jupiter.xml");
+        }
+
+        parseArguments(project.arguments());
+
+        return this;
+    }
+
+    /**
      * Returns the path to the report file.
      *
      * @return the path
@@ -178,7 +164,8 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
      * @see #reportFile(File)
      * @see #reportFile(String)
      */
-    public JUnitReporterOperation reportFile(Path reportFile) {
+    public JUnitReporterOperation reportFile(@NonNull Path reportFile) {
+        Objects.requireNonNull(reportFile, "The report file must not be null");
         reportFile_ = reportFile;
         return this;
     }
@@ -191,7 +178,8 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
      * @see #reportFile(Path)
      * @see #reportFile(String)
      */
-    public JUnitReporterOperation reportFile(File reportFile) {
+    public JUnitReporterOperation reportFile(@NonNull File reportFile) {
+        Objects.requireNonNull(reportFile, "The report file must not be null");
         reportFile_ = reportFile.toPath();
         return this;
     }
@@ -205,19 +193,21 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
      * @see #reportFile(File)
      */
     public JUnitReporterOperation reportFile(String reportFile) {
+        ObjectTools.requireNotEmpty(reportFile, "The report file must not be null or empty");
         reportFile_ = Path.of(reportFile);
         return this;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void logSevere(String message) {
-        if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-            LOGGER.log(Level.SEVERE, message);
+        if (logger.isLoggable(Level.SEVERE) && !silent()) {
+            logger.log(Level.SEVERE, message);
         }
     }
 
     private void logSevere(String message, Exception e) {
-        if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-            LOGGER.log(Level.SEVERE, message, e);
+        if (logger.isLoggable(Level.SEVERE) && !silent()) {
+            logger.log(Level.SEVERE, message, e);
         }
     }
 
@@ -241,7 +231,7 @@ public class JUnitReporterOperation extends AbstractProcessOperation<JUnitReport
             return;
         }
 
-        var matcher = ARG_MATCH_PATTERN.matcher(arg);
+        var matcher = INDEX_PATTERN.matcher(arg);
         if (matcher.matches()) {
             argIndex_ = matcher.group(2);
             args.remove(0);
