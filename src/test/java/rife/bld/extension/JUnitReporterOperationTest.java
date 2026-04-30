@@ -290,7 +290,36 @@ class JUnitReporterOperationTest {
 
     @Nested
     @DisplayName("Execute Tests")
-    class executeTests {
+    class ExecuteTests {
+
+        @Test
+        void executeLogsUnexpectedErrorWithStackTrace() {
+            logger.setLevel(Level.SEVERE);
+            var mockedProject = mock(BaseProject.class);
+            when(mockedProject.buildDirectory()).thenReturn(new File("example/build"));
+
+            var operation = new JUnitReporterOperation()
+                    .fromProject(mockedProject)
+                    .reportFile("src/test/resources/clean.xml");
+
+            try (var mockedParser = Mockito.mockStatic(JUnitXmlParser.class)) {
+                var unexpected = new RuntimeException("Simulated unexpected error");
+                mockedParser.when(() -> JUnitXmlParser.extractTestFailuresGrouped(anyString()))
+                        .thenThrow(unexpected);
+
+                assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
+
+                // Verify logSevere was called with message + throwable
+                assertThat(testLogHandler.containsMessage("Unexpected error: Simulated unexpected error"))
+                        .as("Expected log to contain severe message. Actual: %s", testLogHandler.getLogMessages())
+                        .isTrue();
+
+                // Verify the throwable was logged — TestLogHandler should capture it
+                assertThat(testLogHandler.getLogRecords())
+                        .anyMatch(record -> record.getLevel() == Level.SEVERE
+                                && record.getThrown() == unexpected);
+            }
+        }
 
         @Test
         @CaptureOutput
@@ -457,8 +486,7 @@ class JUnitReporterOperationTest {
 
             assertThatThrownBy(operation::execute).isInstanceOf(ExitStatusException.class);
 
-            assertThat(testLogHandler.getLogMessages())
-                    .contains("The failure index is out of bounds");
+            assertThat(testLogHandler.getLogMessages()).contains("The failure index is out of bounds");
         }
 
         @Test

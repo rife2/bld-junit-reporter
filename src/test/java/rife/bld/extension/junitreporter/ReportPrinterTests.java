@@ -43,7 +43,7 @@ class ReportPrinterTests {
 
         @Test
         void failuresByGroupIndexWithEmptyMap() {
-            assertThatThrownBy(() -> ReportPrinter.getFailuresByGroupIndex(Map.of(), 0))
+            assertThatThrownBy(() -> ReportPrinter.getFailuresByIndex(Map.of(), 0))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("The grouped failures cannot be null or empty");
         }
@@ -54,15 +54,15 @@ class ReportPrinterTests {
                     "TestClass1", new TestClassFailures("TestClass1")
             );
 
-            assertThatThrownBy(() -> ReportPrinter.getFailuresByGroupIndex(groupedFailures, -1))
+            assertThatThrownBy(() -> ReportPrinter.getFailuresByIndex(groupedFailures, -1))
                     .isInstanceOf(IndexOutOfBoundsException.class)
-                    .hasMessage("The group index is out of bounds");
+                    .hasMessage("The group index cannot be negative");
         }
 
         @ParameterizedTest
         @NullSource
         void failuresByGroupIndexWithNullMap(Map<String, TestClassFailures> input) {
-            assertThatThrownBy(() -> ReportPrinter.getFailuresByGroupIndex(input, 0))
+            assertThatThrownBy(() -> ReportPrinter.getFailuresByIndex(input, 0))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("The grouped failures cannot be null or empty");
         }
@@ -73,7 +73,7 @@ class ReportPrinterTests {
                     "TestClass1", new TestClassFailures("TestClass1")
             );
 
-            assertThatThrownBy(() -> ReportPrinter.getFailuresByGroupIndex(groupedFailures, 2))
+            assertThatThrownBy(() -> ReportPrinter.getFailuresByIndex(groupedFailures, 2))
                     .isInstanceOf(IndexOutOfBoundsException.class)
                     .hasMessage("The group index is out of bounds");
         }
@@ -84,7 +84,7 @@ class ReportPrinterTests {
             groupedFailures.put("TestClass1", new TestClassFailures("TestClass1"));
             groupedFailures.put("TestClass2", new TestClassFailures("TestClass2"));
 
-            var result = ReportPrinter.getFailuresByGroupIndex(groupedFailures, 1);
+            var result = ReportPrinter.getFailuresByIndex(groupedFailures, 1);
 
             assertThat(result.getClassName()).isEqualTo("TestClass2");
         }
@@ -174,7 +174,7 @@ class ReportPrinterTests {
         @ParameterizedTest
         @NullSource
         void indentWithNullString(String input) {
-            assertThat(ReportPrinter.indent(input)).isNull();
+            assertThat(ReportPrinter.indent(input)).isEmpty();
         }
 
         @RepeatedTest(3)
@@ -234,8 +234,7 @@ class ReportPrinterTests {
             var failure = new TestFailure("testMethod", "Test Method", "TestClass",
                     "AssertionError", "Test failed message", "", 0.123);
 
-
-            ReportPrinter.printFailure(failure, 1, 2);
+            ReportPrinter.printFailure(failure, 0, 1); // 0-based: group 0, failure 1
 
             var expectedOutput = String.format("[1.2] Test: testMethod%n" +
                     "    - Name: Test Method%n" +

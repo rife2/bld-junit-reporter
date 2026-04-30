@@ -622,7 +622,7 @@ class JUnitXmlParserTest {
         }
 
         @Test
-        void parseTestCasesWithMultipleClasses() throws Exception {
+        void parseTestCasesWithMultipleClasses() throws ParserConfigurationException, IOException, SAXException {
             var xml = XML_HEADER +
                     "<testsuite>" +
                     "  <testcase name=\"testAlpha\" classname=\"com.example.AlphaTest\" time=\"0.1\">" +

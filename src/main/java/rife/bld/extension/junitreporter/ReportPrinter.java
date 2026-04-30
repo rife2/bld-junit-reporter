@@ -16,15 +16,14 @@
 
 package rife.bld.extension.junitreporter;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import rife.bld.extension.tools.ObjectTools;
-
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * Utility class for printing detailed and structured reports of test failures.
+ * <p>
+ * All index parameters are 0-based internally. Public method {@link #printDetails}
+ * accepts 1-based indices from CLI input.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
@@ -37,114 +36,110 @@ public final class ReportPrinter {
     }
 
     /**
-     * Retrieves the test class failures associated with a specific group index from the provided map.
+     * Returns the {@code TestClassFailures} at the given 0-based index.
+     * <p>
+     * Assumes {@code groupedFailures} iteration order is stable.
      *
-     * @param groupedFailures a map where the key is a string representing the group name, and the value is a
-     *                        {@link TestClassFailures} object representing the failures for that group
-     * @param index           the index of the group whose failures are to be retrieved
-     * @return the {@link TestClassFailures} object associated with the specified group index
+     * @param groupedFailures a map of test class failures
+     * @param index           the 0-based index
+     * @return the {@link TestClassFailures} at the specified index
      * @throws IllegalArgumentException  if the map is {@code null} or empty
-     * @throws IndexOutOfBoundsException if the index is out of range
+     * @throws IndexOutOfBoundsException if the index is out of bounds
      */
-    @SuppressFBWarnings("DRE_DECLARED_RUNTIME_EXCEPTION")
-    public static TestClassFailures getFailuresByGroupIndex(Map<String, TestClassFailures> groupedFailures,
-                                                            int index)
-            throws IndexOutOfBoundsException, IllegalArgumentException {
+    public static TestClassFailures getFailuresByIndex(Map<String, TestClassFailures> groupedFailures, int index) {
         if (groupedFailures == null || groupedFailures.isEmpty()) {
             throw new IllegalArgumentException("The grouped failures cannot be null or empty");
         }
-
-        if (index < 0 || index >= groupedFailures.size()) {
-            throw new IndexOutOfBoundsException("The group index is out of bounds");
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("The group index cannot be negative");
         }
 
-        var values = new ArrayList<>(groupedFailures.values());
-        return values.get(index);
+        var i = 0;
+        for (var entry : groupedFailures.values()) {
+            if (i == index) {
+                return entry;
+            }
+            i++;
+        }
+        throw new IndexOutOfBoundsException("The group index is out of bounds");
     }
 
     /**
      * Indents each line of the input text by the specified number of spaces.
      *
-     * @param text       The input text containing one or more lines
-     * @param indentSize The number of spaces to indent each line
-     * @return The indented text with each line prefixed by the specified number of spaces
+     * @param text       the input text; may be null or empty
+     * @param indentSize the number of spaces to indent each line
+     * @return the indented text, or empty string if input is null/empty
+     * @throws IllegalArgumentException if {@code indentSize} is negative
      */
-    public static String indent(String text, int indentSize) throws IllegalArgumentException {
-        if (text == null) {
-            return null;
+    public static String indent(String text, int indentSize) {
+        if (text == null || text.isEmpty()) {
+            return "";
         }
-
-        if (indentSize <= 0) {
-            if (indentSize == 0) {
-                return text;
-            }
+        if (indentSize < 0) {
             throw new IllegalArgumentException("Indent size cannot be negative");
         }
-
-        if (text.isEmpty()) {
+        if (indentSize == 0) {
             return text;
         }
 
         var indent = " ".repeat(indentSize);
-
-        return text.lines()  // More efficient than split() + stream()
+        return text.lines()
                 .map(line -> indent + line)
                 .collect(Collectors.joining(System.lineSeparator()));
     }
 
     /**
-     * Indents each line of the input text by 8 spaces (default indentation).
+     * Indents each line of the input text by 8 spaces.
      *
-     * @param text The input text containing one or more lines
-     * @return The indented text with each line prefixed by 8 spaces
+     * @param text the input text
+     * @return the indented text with each line prefixed by 8 spaces
      */
     public static String indent(String text) {
         return indent(text, 8);
     }
 
-
     /**
-     * Prints the details of test failures based on the given argument and grouped failures.
+     * Prints the details of test failures based on 1-based CLI argument.
+     * <p>
+     * Accepts {@code groupIndex} or {@code groupIndex.failureIndex}.
+     * Converts 1-based input to 0-based internally.
      *
-     * @param arg             a string representing the group index or group and failure indices
-     *                        in the format {@code groupIndex} or {@code groupIndex.failureIndex}
-     * @param groupedFailures a map where the key is a string representing the group name, and the
-     *                        value is a {@link TestClassFailures} object containing the failures
-     *                        for that group
-     * @throws NumberFormatException     if the numeric portion of the argument cannot be parsed
+     * @param arg             a string representing 1-based indices
+     * @param groupedFailures a map of test class failures
+     * @throws NumberFormatException     if the numeric portion cannot be parsed
      * @throws IndexOutOfBoundsException if the specified indices are out of bounds
      */
-    @SuppressFBWarnings("DRE_DECLARED_RUNTIME_EXCEPTION")
-    public static void printDetails(String arg, Map<String, TestClassFailures> groupedFailures)
-            throws NumberFormatException, IndexOutOfBoundsException {
+    public static void printDetails(String arg, Map<String, TestClassFailures> groupedFailures) {
         var dotIndex = arg.indexOf('.');
         if (dotIndex == -1) {
             var groupIndex = Integer.parseInt(arg) - 1;
-            var classFailures = getFailuresByGroupIndex(groupedFailures, groupIndex);
+            var classFailures = getFailuresByIndex(groupedFailures, groupIndex);
             printFailures(classFailures, groupIndex);
         } else {
             var groupIndex = Integer.parseInt(arg.substring(0, dotIndex)) - 1;
             var failureIndex = Integer.parseInt(arg.substring(dotIndex + 1)) - 1;
-            var classFailures = getFailuresByGroupIndex(groupedFailures, groupIndex);
+            var classFailures = getFailuresByIndex(groupedFailures, groupIndex);
 
-            if (failureIndex >= classFailures.getFailures().size()) {
+            var failures = classFailures.getFailures();
+            if (failureIndex < 0 || failureIndex >= failures.size()) {
                 throw new IndexOutOfBoundsException("The failure index is out of bounds");
             }
 
-            printFailureWithStackTrace(classFailures.getFailures().get(failureIndex), groupIndex, failureIndex);
+            printFailureWithStackTrace(failures.get(failureIndex), groupIndex, failureIndex);
         }
     }
 
     /**
-     * Prints details of a single test failure, including optional group and failure indices.
+     * Prints details of a single test failure with optional indices.
      *
-     * @param failure      The {@link TestFailure} object that encapsulates the details of the test failure
-     * @param groupIndex   The index of the group this failure belongs to, or {@code null} if not applicable
-     * @param failureIndex The index of the failure within the group, or {@code null} if not applicable
+     * @param failure      the {@link TestFailure} to print
+     * @param groupIndex   the 0-based group index, or {@code null}
+     * @param failureIndex the 0-based failure index, or {@code null}
      */
     public static void printFailure(TestFailure failure, Integer groupIndex, Integer failureIndex) {
-        var prefix = (ObjectTools.allNotEmpty(groupIndex, failureIndex))
-                ? String.format("[%d.%d] ", groupIndex, failureIndex)
+        var prefix = (groupIndex != null && failureIndex != null)
+                ? String.format("[%d.%d] ", groupIndex + 1, failureIndex + 1)
                 : "";
 
         var output = String.format("%sTest: %s%n" +
@@ -163,35 +158,30 @@ public final class ReportPrinter {
     }
 
     /**
-     * Prints the failure details, including its formatted group and failure indices, and displays the associated
-     * stack trace.
+     * Prints failure details with header and stack trace using 0-based indices.
      *
-     * @param failure      The {@link TestFailure} object representing the test failure details
-     * @param groupIndex   The index of the group this failure belongs to
-     * @param failureIndex The index of the failure within the group
+     * @param failure      the {@link TestFailure} to print
+     * @param groupIndex   the 0-based group index
+     * @param failureIndex the 0-based failure index
      */
     public static void printFailureWithStackTrace(TestFailure failure, int groupIndex, int failureIndex) {
-        var groupIndexOffset = groupIndex + 1;
-        printHeader(String.format("[%d] %s", groupIndexOffset, failure.className()));
-        printFailure(failure, groupIndexOffset, failureIndex + 1);
+        printHeader(String.format("[%d] %s", groupIndex + 1, failure.className()));
+        printFailure(failure, groupIndex, failureIndex);
         printStackTrace(failure);
     }
 
     /**
-     * Prints the failures of a specific test class along with their group and failure indices.
+     * Prints all failures for a test class using 0-based group index.
      *
-     * @param failures   the {@link TestClassFailures} object containing the test failures associated with a specific
-     *                   test class
-     * @param groupIndex the index of the group to which the test class belongs
+     * @param failures   the {@link TestClassFailures} to print
+     * @param groupIndex the 0-based group index
      */
     public static void printFailures(TestClassFailures failures, int groupIndex) {
-        var groupIndexOffset = groupIndex + 1;
-        printHeader(String.format("[%d] %s", groupIndexOffset, failures.getClassName()));
+        printHeader(String.format("[%d] %s", groupIndex + 1, failures.getClassName()));
 
-        var failureCount = 1;
-        for (var failure : failures.getFailures()) {
-            printFailure(failure, groupIndexOffset, failureCount);
-            failureCount++;
+        var failureList = failures.getFailures();
+        for (var i = 0; i < failureList.size(); i++) {
+            printFailure(failureList.get(i), groupIndex, i);
             System.out.println();
         }
     }
@@ -204,17 +194,13 @@ public final class ReportPrinter {
     public static void printHeader(String title) {
         var separatorLength = Math.max(title.length(), 50);
         var separator = "-".repeat(separatorLength);
-
-        var header = String.format("%s%n%s%n%s%n%n", separator, title, separator);
-
-        System.out.print(header);
+        System.out.printf("%s%n%s%n%s%n%n", separator, title, separator);
     }
 
     /**
      * Prints the stack trace of the provided test failure, if available.
      *
-     * @param failure The {@link TestFailure} object containing the details and stack trace of the test failure to be
-     *                printed
+     * @param failure the {@link TestFailure} containing the stack trace
      */
     public static void printStackTrace(TestFailure failure) {
         var stackTrace = failure.stackTrace();
@@ -226,13 +212,12 @@ public final class ReportPrinter {
     /**
      * Prints a summary of JUnit test failures grouped by test class.
      *
-     * @param groupedFailures a map where the key is a string representing the group name, and the value
-     *                        is a {@link TestClassFailures} object that contains the failures for that group
+     * @param groupedFailures a map of test class failures
      */
     public static void printSummary(Map<String, TestClassFailures> groupedFailures) {
         printHeader("JUnit Failures Summary");
 
-        var sb = new StringBuilder(1024); // Pre-allocate for better performance
+        var sb = new StringBuilder(1024);
         var groupCount = 0;
 
         for (var classFailures : groupedFailures.values()) {
@@ -243,17 +228,16 @@ public final class ReportPrinter {
                     classFailures.getTotalFailures(),
                     classFailures.getTotalTime()));
 
-            var failureCount = 0;
-            for (var failure : classFailures.getFailures()) {
-                failureCount++;
+            var failures = classFailures.getFailures();
+            for (var i = 0; i < failures.size(); i++) {
+                var failure = failures.get(i);
                 String testName;
-                if (failure.displayName().isBlank()
-                        || failure.displayName().equals(failure.testName())) {
+                if (failure.displayName().isBlank() || failure.displayName().equals(failure.testName())) {
                     testName = failure.testName();
                 } else {
                     testName = failure.testName() + " (" + failure.displayName() + ')';
                 }
-                sb.append(String.format("  - [%d.%d] %s%n", groupCount, failureCount, testName));
+                sb.append(String.format("  - [%d.%d] %s%n", groupCount, i + 1, testName));
             }
         }
 

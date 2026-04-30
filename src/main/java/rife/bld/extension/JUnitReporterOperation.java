@@ -75,6 +75,7 @@ public class JUnitReporterOperation extends AbstractOperation<JUnitReporterOpera
      * @throws ExitStatusException if the operation fails
      */
     @Override
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     public void execute() throws Exception {
         if (IOTools.notExists(reportFile_)) {
             logSevere("A report file is required to run this operation.");
@@ -99,7 +100,7 @@ public class JUnitReporterOperation extends AbstractOperation<JUnitReporterOpera
             logSevere("Failed to parse JUnit report: " + e.getMessage(), e);
         } catch (IndexOutOfBoundsException e) {
             logSevere(e.getMessage(), e); // message includes the exact cause
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             logSevere("Unexpected error: " + e.getMessage(), e);
         }
 
@@ -243,8 +244,7 @@ public class JUnitReporterOperation extends AbstractOperation<JUnitReporterOpera
      *
      * @param groupedFailures the non-empty grouped failures to print
      */
-    private void printFailures(Map<String, TestClassFailures> groupedFailures)
-            throws IndexOutOfBoundsException, NumberFormatException {
+    private void printFailures(Map<String, TestClassFailures> groupedFailures) {
         if (printAll_) {
             for (var i = 0; i < groupedFailures.size(); i++) {
                 ReportPrinter.printDetails(String.valueOf(i + 1), groupedFailures);
